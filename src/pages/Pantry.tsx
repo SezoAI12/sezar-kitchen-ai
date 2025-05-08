@@ -7,16 +7,11 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-
-type PantryItem = {
-  id: string;
-  name: string;
-  image: string;
-  quantity: string;
-  unit: string;
-  expiryStatus: 'good' | 'warning' | 'expired';
-  expiryDate: string;
-};
+import PantryAddForm, { PantryItem } from '../components/PantryAddForm';
+import {
+  Dialog,
+  DialogContent,
+} from "@/components/ui/dialog";
 
 const pantryCategories = [
   { id: 'all', name: 'All' },
@@ -25,6 +20,7 @@ const pantryCategories = [
   { id: 'protein', name: 'Protein' },
   { id: 'grains', name: 'Grains' },
   { id: 'spices', name: 'Spices' },
+  { id: 'other', name: 'Other' },
 ];
 
 const mockPantryItems: PantryItem[] = [
@@ -93,7 +89,7 @@ const Pantry = () => {
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [pantryItems, setPantryItems] = useState<PantryItem[]>(mockPantryItems);
-  const [showAddItemForm, setShowAddItemForm] = useState(false);
+  const [showAddItemDialog, setShowAddItemDialog] = useState(false);
   
   const filteredItems = pantryItems.filter(item => 
     item.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -104,9 +100,8 @@ const Pantry = () => {
     // In a real app, this would pass the pantry ingredients to the recipe search
   };
 
-  const handleAddItem = () => {
-    setShowAddItemForm(true);
-    // This would open a form to add new pantry items
+  const handleAddItem = (newItem: PantryItem) => {
+    setPantryItems(prev => [newItem, ...prev]);
   };
 
   return (
@@ -131,11 +126,21 @@ const Pantry = () => {
           <Button
             className="h-10 bg-chef-primary hover:bg-chef-primary/90"
             size="icon"
-            onClick={handleAddItem}
+            onClick={() => setShowAddItemDialog(true)}
           >
             <Plus size={20} />
           </Button>
         </div>
+        
+        {/* Add Item Dialog */}
+        <Dialog open={showAddItemDialog} onOpenChange={setShowAddItemDialog}>
+          <DialogContent>
+            <PantryAddForm 
+              onAddItem={handleAddItem} 
+              onClose={() => setShowAddItemDialog(false)}
+            />
+          </DialogContent>
+        </Dialog>
         
         {/* Category Tabs */}
         <div className="px-4 py-3 bg-white border-t">

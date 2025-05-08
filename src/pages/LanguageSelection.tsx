@@ -7,16 +7,16 @@ import { motion } from 'framer-motion';
 import { useToast } from '@/components/ui/use-toast';
 
 const languages = [
-  { code: 'en', name: 'English', flag: '🇺🇸' },
-  { code: 'es', name: 'Español', flag: '🇪🇸' },
-  { code: 'fr', name: 'Français', flag: '🇫🇷' },
-  { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
-  { code: 'ar', name: 'العربية', flag: '🇸🇦', rtl: true },
-  { code: 'zh', name: '中文', flag: '🇨🇳' },
-  { code: 'ja', name: '日本語', flag: '🇯🇵' },
-  { code: 'ko', name: '한국어', flag: '🇰🇷' },
-  { code: 'ru', name: 'Русский', flag: '🇷🇺' },
-  { code: 'pt', name: 'Português', flag: '🇵🇹' },
+  { code: 'en', name: 'English', flag: '🇺🇸', direction: 'ltr' },
+  { code: 'es', name: 'Español', flag: '🇪🇸', direction: 'ltr' },
+  { code: 'fr', name: 'Français', flag: '🇫🇷', direction: 'ltr' },
+  { code: 'de', name: 'Deutsch', flag: '🇩🇪', direction: 'ltr' },
+  { code: 'ar', name: 'العربية', flag: '🇸🇦', direction: 'rtl' },
+  { code: 'zh', name: '中文', flag: '🇨🇳', direction: 'ltr' },
+  { code: 'ja', name: '日本語', flag: '🇯🇵', direction: 'ltr' },
+  { code: 'ko', name: '한국어', flag: '🇰🇷', direction: 'ltr' },
+  { code: 'ru', name: 'Русский', flag: '🇷🇺', direction: 'ltr' },
+  { code: 'pt', name: 'Português', flag: '🇵🇹', direction: 'ltr' },
 ];
 
 const LanguageSelection = () => {
@@ -30,6 +30,13 @@ const LanguageSelection = () => {
   useEffect(() => {
     // Store the selected language in localStorage
     localStorage.setItem('preferredLanguage', selectedLanguage);
+    
+    // Set the direction attribute on the document
+    const selectedLang = languages.find(lang => lang.code === selectedLanguage);
+    if (selectedLang) {
+      document.documentElement.dir = selectedLang.direction;
+      document.documentElement.lang = selectedLang.code;
+    }
   }, [selectedLanguage]);
 
   const handleLanguageSelect = (languageCode: string) => {
@@ -86,7 +93,9 @@ const LanguageSelection = () => {
                 >
                   <div className="flex items-center">
                     <span className="text-2xl mr-3">{language.flag}</span>
-                    <span className={`${language.rtl ? 'font-arabic' : ''}`}>{language.name}</span>
+                    <span className={language.direction === 'rtl' ? 'font-arabic' : ''}>
+                      {language.name}
+                    </span>
                   </div>
                   {selectedLanguage === language.code && (
                     <Check size={20} className="text-chef-primary" />

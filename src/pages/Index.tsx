@@ -7,6 +7,7 @@ import IngredientSelector from '../components/IngredientSelector';
 import FilterSystem, { FilterOptions } from '../components/FilterSystem';
 import QuickAccessBar from '../components/QuickAccessBar';
 import RecipeCard from '../components/RecipeCard';
+import FindRecipesButton from '../components/FindRecipesButton';
 import { Button } from '@/components/ui/button';
 import { FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -23,6 +24,7 @@ const Index = () => {
   const [selectedIngredients, setSelectedIngredients] = useState<Ingredient[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterOptions, setFilterOptions] = useState<FilterOptions>({});
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleCategorySelect = (category: Category) => {
@@ -48,6 +50,14 @@ const Index = () => {
 
   const handleCreateRecipe = () => {
     navigate('/recipe/submit');
+  };
+
+  const handleFindRecipes = () => {
+    setIsLoading(true);
+    // Simulate API call
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 1500);
   };
 
   // Sample recipe data for demonstration
@@ -98,20 +108,6 @@ const Index = () => {
           <h1 className="text-2xl font-bold font-montserrat text-chef-primary">Chef Sezar</h1>
         </header>
         
-        {/* Share Recipe Button */}
-        <div className="px-4 py-3 bg-white border-b">
-          <Button 
-            onClick={handleCreateRecipe}
-            className="w-full flex items-center justify-center gap-2 bg-chef-secondary hover:bg-chef-secondary/90"
-          >
-            <FileText size={18} />
-            <span>Share Your Culinary Creation</span>
-          </Button>
-        </div>
-
-        {/* Quick Access Bar */}
-        <QuickAccessBar />
-        
         {/* Category Selection */}
         <CategorySelection 
           onCategorySelect={handleCategorySelect}
@@ -138,6 +134,26 @@ const Index = () => {
           onFilterChange={handleFilterChange}
           currentFilters={filterOptions}
         />
+        
+        {/* Find Recipes Button */}
+        <FindRecipesButton 
+          onClick={handleFindRecipes}
+          isLoading={isLoading}
+        />
+        
+        {/* Share Recipe Button - Moved below Find Recipes button */}
+        <div className="px-4 py-3 bg-white border-b">
+          <Button 
+            onClick={handleCreateRecipe}
+            className="w-full flex items-center justify-center gap-2 bg-chef-secondary hover:bg-chef-secondary/90"
+          >
+            <FileText size={18} />
+            <span>Share Your Culinary Creation</span>
+          </Button>
+        </div>
+
+        {/* Quick Access Bar - Moved below Share Recipe button */}
+        <QuickAccessBar />
         
         {/* Recipe Results */}
         <section className="px-4 py-6">

@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Plus, X, Search } from 'lucide-react';
+import { Plus, X, Search, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -10,6 +10,7 @@ import {
   DialogHeader, 
   DialogTitle, 
   DialogTrigger,
+  DialogFooter
 } from "@/components/ui/dialog";
 
 type Ingredient = {
@@ -41,15 +42,32 @@ const IngredientSelector = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [customIngredient, setCustomIngredient] = useState('');
+  const [tempSelectedIngredients, setTempSelectedIngredients] = useState<Ingredient[]>([]);
   
-  const handleAddIngredient = (ingredient: Ingredient) => {
-    if (!selectedIngredients.some(item => item.id === ingredient.id)) {
-      onIngredientsChange([...selectedIngredients, ingredient]);
-    }
+  const handleOpenModal = () => {
+    setTempSelectedIngredients([...selectedIngredients]);
+    setIsModalOpen(true);
   };
   
-  const handleRemoveIngredient = (ingredientId: string) => {
-    onIngredientsChange(selectedIngredients.filter(item => item.id !== ingredientId));
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSearchTerm('');
+    setCustomIngredient('');
+  };
+  
+  const handleConfirmSelection = () => {
+    onIngredientsChange(tempSelectedIngredients);
+    handleCloseModal();
+  };
+  
+  const handleToggleIngredient = (ingredient: Ingredient) => {
+    const isSelected = tempSelectedIngredients.some(item => item.id === ingredient.id);
+    
+    if (isSelected) {
+      setTempSelectedIngredients(tempSelectedIngredients.filter(item => item.id !== ingredient.id));
+    } else {
+      setTempSelectedIngredients([...tempSelectedIngredients, ingredient]);
+    }
   };
   
   const handleAddCustomIngredient = () => {
@@ -59,9 +77,13 @@ const IngredientSelector = ({
         name: customIngredient.trim(),
         image: 'https://images.unsplash.com/photo-1495195134817-aeb325a55b65?auto=format&fit=crop&w=100&h=100&q=80'
       };
-      handleAddIngredient(newIngredient);
+      setTempSelectedIngredients([...tempSelectedIngredients, newIngredient]);
       setCustomIngredient('');
     }
+  };
+  
+  const handleRemoveIngredient = (ingredientId: string) => {
+    onIngredientsChange(selectedIngredients.filter(item => item.id !== ingredientId));
   };
   
   const filteredIngredients = popularIngredients.filter(ingredient => 
@@ -75,7 +97,7 @@ const IngredientSelector = ({
         
         <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
           <DialogTrigger asChild>
-            <Button variant="outline" className="flex items-center gap-2">
+            <Button variant="outline" className="flex items-center gap-2" onClick={handleOpenModal}>
               <Plus size={16} />
               <span>Add Ingredients</span>
             </Button>
@@ -98,14 +120,14 @@ const IngredientSelector = ({
               
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
                 {filteredIngredients.map((ingredient) => {
-                  const isSelected = selectedIngredients.some(item => item.id === ingredient.id);
+                  const isSelected = tempSelectedIngredients.some(item => item.id === ingredient.id);
                   return (
                     <div
                       key={ingredient.id}
                       className={`border rounded-lg p-2 cursor-pointer transition-all ${
                         isSelected ? 'border-chef-primary bg-chef-primary/10' : 'hover:bg-gray-50'
                       }`}
-                      onClick={() => isSelected ? handleRemoveIngredient(ingredient.id) : handleAddIngredient(ingredient)}
+                      onClick={() => handleToggleIngredient(ingredient)}
                     >
                       <div className="flex items-center gap-2">
                         <img 
@@ -132,6 +154,14 @@ const IngredientSelector = ({
                 </Button>
               </div>
             </div>
+            
+            <DialogFooter>
+              <Button variant="outline" onClick={handleCloseModal} className="mr-2">Cancel</Button>
+              <Button onClick={handleConfirmSelection} className="flex items-center gap-2">
+                <Check size={16} />
+                <span>OK</span>
+              </Button>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>

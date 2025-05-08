@@ -26,19 +26,22 @@ const SubcategorySelection = ({
       { id: 'main-dishes', name: 'Main Dishes', icon: '🥘' },
       { id: 'appetizers', name: 'Appetizers', icon: '🍱' },
       { id: 'pickles', name: 'Pickles', icon: '🥒' },
-      { id: 'sauces', name: 'Sauces', icon: '🍯' }
+      { id: 'sauces', name: 'Sauces', icon: '🍯' },
+      { id: 'other-food', name: 'Other', icon: '🍴' }
     ],
     desserts: [
       { id: 'traditional', name: 'Traditional', icon: '🥮' },
       { id: 'western', name: 'Western', icon: '🍪' },
       { id: 'pastries', name: 'Pastries', icon: '🥐' },
-      { id: 'ice-cream', name: 'Ice Cream', icon: '🍦' }
+      { id: 'ice-cream', name: 'Ice Cream', icon: '🍦' },
+      { id: 'other-desserts', name: 'Other', icon: '🍰' }
     ],
     drinks: [
       { id: 'detox', name: 'Detox', icon: '🥤' },
       { id: 'cocktails', name: 'Cocktails', icon: '🍸' },
       { id: 'alcoholic', name: 'Alcoholic', icon: '🍷' },
-      { id: 'hot-drinks', name: 'Hot Drinks', icon: '☕' }
+      { id: 'hot-drinks', name: 'Hot Drinks', icon: '☕' },
+      { id: 'other-drinks', name: 'Other', icon: '🥃' }
     ]
   };
 
@@ -50,7 +53,7 @@ const SubcategorySelection = ({
     <div className="px-4 py-3 bg-white">
       <h3 className="text-sm text-chef-medium-gray mb-2">Select a subcategory</h3>
       
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-5 gap-2">
         {subcategories[category].map((subcategory) => (
           <motion.button
             key={subcategory.id}
