@@ -1,0 +1,74 @@
+
+import { ReactNode } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { 
+  Home, 
+  Globe, 
+  Pantry, 
+  User 
+} from 'lucide-react';
+
+type LayoutProps = {
+  children: ReactNode;
+};
+
+const Layout = ({ children }: LayoutProps) => {
+  const location = useLocation();
+  
+  const isActive = (path: string) => {
+    return location.pathname === path;
+  };
+
+  return (
+    <div className="flex flex-col min-h-screen bg-chef-light-gray">
+      <main className="flex-1 pb-16">
+        {children}
+      </main>
+      
+      {/* Bottom Navigation */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.1)] flex justify-around items-center h-16 px-2">
+        <Link 
+          to="/" 
+          className={`flex flex-col items-center justify-center w-1/4 pt-1 ${
+            isActive('/') ? 'text-chef-primary border-t-2 border-chef-primary' : 'text-chef-medium-gray'
+          }`}
+        >
+          <Home size={24} />
+          <span className="text-xs mt-0.5">Home</span>
+        </Link>
+        
+        <Link 
+          to="/global" 
+          className={`flex flex-col items-center justify-center w-1/4 pt-1 ${
+            isActive('/global') ? 'text-chef-primary border-t-2 border-chef-primary' : 'text-chef-medium-gray'
+          }`}
+        >
+          <Globe size={24} />
+          <span className="text-xs mt-0.5">Global</span>
+        </Link>
+        
+        <Link 
+          to="/pantry" 
+          className={`flex flex-col items-center justify-center w-1/4 pt-1 ${
+            isActive('/pantry') ? 'text-chef-primary border-t-2 border-chef-primary' : 'text-chef-medium-gray'
+          }`}
+        >
+          <Pantry size={24} />
+          <span className="text-xs mt-0.5">Pantry</span>
+        </Link>
+        
+        <Link 
+          to="/profile" 
+          className={`flex flex-col items-center justify-center w-1/4 pt-1 ${
+            isActive('/profile') ? 'text-chef-primary border-t-2 border-chef-primary' : 'text-chef-medium-gray'
+          }`}
+        >
+          <User size={24} />
+          <span className="text-xs mt-0.5">Profile</span>
+        </Link>
+      </nav>
+    </div>
+  );
+};
+
+export default Layout;

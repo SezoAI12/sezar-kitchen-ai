@@ -1,27 +1,18 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useToast } from "@/components/ui/use-toast";
 import Layout from '../components/Layout';
 import CategorySelection, { Category } from '../components/CategorySelection';
 import SubcategorySelection from '../components/SubcategorySelection';
 import FilterSystem, { FilterOptions } from '../components/FilterSystem';
-import IngredientSelector from '../components/IngredientSelector';
 import FindRecipesButton from '../components/FindRecipesButton';
-import QuickAccessBar from '../components/QuickAccessBar';
 import RecipeCard, { Recipe } from '../components/RecipeCard';
 
-type Ingredient = {
-  id: string;
-  name: string;
-  image: string;
-};
-
-const Index = () => {
+const Global = () => {
   const { toast } = useToast();
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
   const [filterOptions, setFilterOptions] = useState<FilterOptions>({});
-  const [selectedIngredients, setSelectedIngredients] = useState<Ingredient[]>([]);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   
@@ -38,16 +29,12 @@ const Index = () => {
     setFilterOptions(filters);
   };
   
-  const handleIngredientsChange = (ingredients: Ingredient[]) => {
-    setSelectedIngredients(ingredients);
-  };
-
-  // Mock function to simulate fetching recipes
+  // Mock function to simulate browsing global recipes
   const handleFindRecipes = () => {
-    if (selectedIngredients.length === 0) {
+    if (!selectedCategory) {
       toast({
-        title: "No ingredients selected",
-        description: "Please add at least one ingredient to find recipes.",
+        title: "No category selected",
+        description: "Please select a category to browse recipes.",
         variant: "destructive",
       });
       return;
@@ -59,48 +46,44 @@ const Index = () => {
     setTimeout(() => {
       const mockRecipes: Recipe[] = [
         {
-          id: '1',
-          title: 'Homemade Pasta with Fresh Tomato Sauce',
-          image: 'https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&w=800&q=80',
-          time: '35 mins',
-          difficulty: 'easy',
-          cuisine: 'italian',
-          servings: 4,
-          usageCount: 245,
-          matchPercentage: 95
-        },
-        {
-          id: '2',
-          title: 'Garlic Butter Chicken with Roasted Vegetables',
-          image: 'https://images.unsplash.com/photo-1532550907401-a500c9a57435?auto=format&fit=crop&w=800&q=80',
-          time: '45 mins',
+          id: '5',
+          title: 'Traditional Italian Carbonara',
+          image: 'https://images.unsplash.com/photo-1612874742237-6526221588e3?auto=format&fit=crop&w=800&q=80',
+          time: '25 mins',
           difficulty: 'medium',
-          cuisine: 'mediterranean',
+          cuisine: 'italian',
           servings: 2,
-          usageCount: 178,
-          matchPercentage: 82
+          usageCount: 418
         },
         {
-          id: '3',
-          title: 'Simple Egg Fried Rice',
-          image: 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=800&q=80',
+          id: '6',
+          title: 'Authentic Mexican Tacos',
+          image: 'https://images.unsplash.com/photo-1613514785940-daed77081595?auto=format&fit=crop&w=800&q=80',
+          time: '40 mins',
+          difficulty: 'easy',
+          cuisine: 'mexican',
+          servings: 4,
+          usageCount: 356
+        },
+        {
+          id: '7',
+          title: 'Japanese Miso Ramen',
+          image: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=800&q=80',
+          time: '50 mins',
+          difficulty: 'medium',
+          cuisine: 'japanese',
+          servings: 3,
+          usageCount: 289
+        },
+        {
+          id: '8',
+          title: 'Lebanese Tabbouleh Salad',
+          image: 'https://images.unsplash.com/photo-1645116616283-8fce17cf9e39?auto=format&fit=crop&w=800&q=80',
           time: '20 mins',
           difficulty: 'easy',
-          cuisine: 'asian',
-          servings: 3,
-          usageCount: 312,
-          matchPercentage: 78
-        },
-        {
-          id: '4',
-          title: 'Creamy Mushroom Risotto',
-          image: 'https://images.unsplash.com/photo-1633352615955-f0c99e8b7e5a?auto=format&fit=crop&w=800&q=80',
-          time: '40 mins',
-          difficulty: 'medium',
-          cuisine: 'italian',
-          servings: 4,
-          usageCount: 156,
-          matchPercentage: 70
+          cuisine: 'lebanese',
+          servings: 6,
+          usageCount: 175
         }
       ];
       
@@ -109,7 +92,7 @@ const Index = () => {
       
       toast({
         title: "Recipes Found!",
-        description: `Found ${mockRecipes.length} recipes based on your ingredients.`,
+        description: `Found ${mockRecipes.length} ${selectedCategory} recipes in our global cuisine collection.`,
       });
     }, 1500);
   };
@@ -119,7 +102,7 @@ const Index = () => {
       <div className="max-w-md mx-auto bg-chef-light-gray min-h-screen pb-24">
         {/* Header Section */}
         <header className="bg-white p-4 flex justify-between items-center shadow-sm">
-          <h1 className="text-2xl font-bold font-montserrat text-chef-primary">Chef Sezar</h1>
+          <h1 className="text-2xl font-bold font-montserrat text-chef-primary">Global Cuisine</h1>
         </header>
         
         {/* Category Selection */}
@@ -143,32 +126,22 @@ const Index = () => {
           currentFilters={filterOptions} 
         />
         
-        {/* Quick Access Bar */}
-        <QuickAccessBar />
-        
-        {/* Ingredient Selector */}
-        <IngredientSelector 
-          selectedIngredients={selectedIngredients} 
-          onIngredientsChange={handleIngredientsChange} 
-        />
-        
         {/* Recipe Results - Show only if recipes exist */}
         {recipes.length > 0 && (
           <section className="px-4 py-6">
-            <h2 className="text-xl font-bold mb-4">Recipe Suggestions</h2>
+            <h2 className="text-xl font-bold mb-4">Global Cuisine Collection</h2>
             <div className="grid grid-cols-1 gap-4">
               {recipes.map(recipe => (
                 <RecipeCard 
                   key={recipe.id} 
                   recipe={recipe} 
-                  showMatchPercentage 
                 />
               ))}
             </div>
           </section>
         )}
         
-        {/* Find Recipes Button */}
+        {/* Browse Recipes Button */}
         <FindRecipesButton 
           onClick={handleFindRecipes} 
           isLoading={isLoading} 
@@ -178,4 +151,4 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default Global;
