@@ -17,10 +17,21 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { useNavigate } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useToast } from '@/components/ui/use-toast';
 
 const Profile = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
+  
+  const handleLogout = () => {
+    // Here you would handle the actual logout logic
+    toast({
+      title: "Logged Out",
+      description: "You have been successfully logged out."
+    });
+    navigate('/login');
+  };
   
   return (
     <Layout>
@@ -163,6 +174,14 @@ const Profile = () => {
               <div className="flex items-center">
                 <span className="text-chef-medium-gray mr-2">English</span>
                 <ChevronRight size={20} className="text-chef-medium-gray" />
+              </div>
+            </div>
+            
+            {/* Logout Button */}
+            <div className="py-3 flex items-center justify-between" onClick={handleLogout}>
+              <div className="flex items-center">
+                <LogOut size={20} className="mr-2 text-red-500" />
+                <span className="text-red-500">Logout</span>
               </div>
             </div>
           </div>

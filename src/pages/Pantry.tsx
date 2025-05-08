@@ -93,6 +93,7 @@ const Pantry = () => {
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [pantryItems, setPantryItems] = useState<PantryItem[]>(mockPantryItems);
+  const [showAddItemForm, setShowAddItemForm] = useState(false);
   
   const filteredItems = pantryItems.filter(item => 
     item.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -103,6 +104,11 @@ const Pantry = () => {
     // In a real app, this would pass the pantry ingredients to the recipe search
   };
 
+  const handleAddItem = () => {
+    setShowAddItemForm(true);
+    // This would open a form to add new pantry items
+  };
+
   return (
     <Layout>
       <div className="max-w-md mx-auto bg-chef-light-gray min-h-screen pb-24">
@@ -111,9 +117,9 @@ const Pantry = () => {
           <h1 className="text-2xl font-bold font-montserrat text-chef-primary">Smart Pantry</h1>
         </header>
         
-        {/* Search Bar */}
-        <div className="p-4 bg-white">
-          <div className="relative">
+        {/* Search Bar and Add Button */}
+        <div className="p-4 bg-white flex items-center gap-2">
+          <div className="relative flex-1">
             <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
             <Input
               placeholder="Search ingredients..."
@@ -122,6 +128,13 @@ const Pantry = () => {
               className="pl-10"
             />
           </div>
+          <Button
+            className="h-10 bg-chef-primary hover:bg-chef-primary/90"
+            size="icon"
+            onClick={handleAddItem}
+          >
+            <Plus size={20} />
+          </Button>
         </div>
         
         {/* Category Tabs */}
@@ -189,16 +202,6 @@ const Pantry = () => {
               </p>
             </div>
           )}
-        </div>
-        
-        {/* Add Ingredient Button */}
-        <div className="fixed bottom-28 right-6">
-          <Button
-            className="rounded-full h-14 w-14 bg-chef-primary hover:bg-chef-primary/90"
-            size="icon"
-          >
-            <Plus size={24} />
-          </Button>
         </div>
         
         {/* Find Recipes from Pantry Button */}

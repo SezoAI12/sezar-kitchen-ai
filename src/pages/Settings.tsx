@@ -1,209 +1,223 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Layout from '../components/Layout';
+import { ChevronLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
-import { 
-  ChevronLeft, 
-  ChevronRight,
-  Globe, 
-  Bell, 
-  Shield, 
-  Info,
-  UserCog,
-  Trash2
-} from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useToast } from '@/components/ui/use-toast';
+import { Switch } from '@/components/ui/switch';
 
 const Settings = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   
-  const [notifications, setNotifications] = useState({
-    recipes: true,
-    reminders: true,
-    news: false,
-    offers: false
+  const [activeTab, setActiveTab] = useState('profile');
+  const [profile, setProfile] = useState({
+    name: 'Jane Doe',
+    email: 'jane.doe@example.com',
+    photo: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=200&q=80'
   });
   
-  const handleLogout = () => {
+  const [dietaryPreferences, setDietaryPreferences] = useState({
+    vegetarian: false,
+    vegan: false,
+    pescatarian: false,
+    glutenFree: false,
+    dairyFree: false,
+    nutFree: false,
+    lowCarb: false,
+    keto: false,
+    paleo: false
+  });
+  
+  const [notifications, setNotifications] = useState({
+    push: true,
+    email: false,
+    offers: true,
+    updates: false
+  });
+  
+  const handleProfileUpdate = (e: React.FormEvent) => {
+    e.preventDefault();
     toast({
-      title: "Logged out",
-      description: "You have been logged out successfully"
+      title: "Profile updated",
+      description: "Your profile has been successfully updated."
     });
-    navigate('/login');
   };
   
-  const showDeleteConfirmation = () => {
+  const toggleDietaryPreference = (preference: keyof typeof dietaryPreferences) => {
+    setDietaryPreferences({
+      ...dietaryPreferences,
+      [preference]: !dietaryPreferences[preference]
+    });
+    
     toast({
-      title: "Delete Account",
-      description: "This action would show a confirmation dialog"
+      title: "Preference updated",
+      description: `${preference} preference has been updated.`
+    });
+  };
+  
+  const toggleNotification = (type: keyof typeof notifications) => {
+    setNotifications({
+      ...notifications,
+      [type]: !notifications[type]
     });
   };
 
   return (
-    <Layout>
-      <div className="max-w-md mx-auto bg-chef-light-gray min-h-screen pb-20">
-        <div className="bg-white p-4 shadow-sm">
-          <div className="flex items-center">
-            <button onClick={() => navigate(-1)} className="mr-2">
-              <ChevronLeft size={24} />
-            </button>
-            <h1 className="text-2xl font-bold">Settings</h1>
-          </div>
-        </div>
-        
-        <div className="bg-white mt-2">
-          {/* Account Section */}
-          <div className="p-4 border-b">
-            <h2 className="text-lg font-semibold mb-2">Account</h2>
-            
-            <div className="space-y-2">
-              <button 
-                className="w-full flex items-center justify-between py-2 px-1"
-                onClick={() => navigate('/profile/edit')}
-              >
-                <div className="flex items-center">
-                  <UserCog size={18} className="mr-3 text-chef-medium-gray" />
-                  <span>Edit Profile</span>
-                </div>
-                <ChevronRight size={18} className="text-chef-medium-gray" />
-              </button>
-              
-              <button 
-                className="w-full flex items-center justify-between py-2 px-1"
-                onClick={() => navigate('/language')}
-              >
-                <div className="flex items-center">
-                  <Globe size={18} className="mr-3 text-chef-medium-gray" />
-                  <span>Language</span>
-                </div>
-                <div className="flex items-center">
-                  <span className="text-chef-medium-gray mr-2">English</span>
-                  <ChevronRight size={18} className="text-chef-medium-gray" />
-                </div>
-              </button>
-            </div>
-          </div>
-          
-          {/* Notifications Section */}
-          <div className="p-4 border-b">
-            <h2 className="text-lg font-semibold mb-2">Notifications</h2>
-            
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <Bell size={18} className="mr-3 text-chef-medium-gray" />
-                  <span>Recipe Recommendations</span>
-                </div>
-                <Switch 
-                  checked={notifications.recipes} 
-                  onCheckedChange={(checked) => setNotifications({ ...notifications, recipes: checked })} 
-                />
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <Bell size={18} className="mr-3 text-chef-medium-gray" />
-                  <span>Cooking Reminders</span>
-                </div>
-                <Switch 
-                  checked={notifications.reminders} 
-                  onCheckedChange={(checked) => setNotifications({ ...notifications, reminders: checked })} 
-                />
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <Bell size={18} className="mr-3 text-chef-medium-gray" />
-                  <span>News & Updates</span>
-                </div>
-                <Switch 
-                  checked={notifications.news} 
-                  onCheckedChange={(checked) => setNotifications({ ...notifications, news: checked })} 
-                />
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <Bell size={18} className="mr-3 text-chef-medium-gray" />
-                  <span>Special Offers</span>
-                </div>
-                <Switch 
-                  checked={notifications.offers} 
-                  onCheckedChange={(checked) => setNotifications({ ...notifications, offers: checked })} 
-                />
-              </div>
-            </div>
-          </div>
-          
-          {/* Information Section */}
-          <div className="p-4 border-b">
-            <h2 className="text-lg font-semibold mb-2">Information</h2>
-            
-            <div className="space-y-2">
-              <button 
-                className="w-full flex items-center justify-between py-2 px-1"
-                onClick={() => navigate('/about')}
-              >
-                <div className="flex items-center">
-                  <Info size={18} className="mr-3 text-chef-medium-gray" />
-                  <span>About Chef Sezar</span>
-                </div>
-                <ChevronRight size={18} className="text-chef-medium-gray" />
-              </button>
-              
-              <button 
-                className="w-full flex items-center justify-between py-2 px-1"
-                onClick={() => navigate('/privacy-policy')}
-              >
-                <div className="flex items-center">
-                  <Shield size={18} className="mr-3 text-chef-medium-gray" />
-                  <span>Privacy Policy</span>
-                </div>
-                <ChevronRight size={18} className="text-chef-medium-gray" />
-              </button>
-              
-              <button 
-                className="w-full flex items-center justify-between py-2 px-1"
-                onClick={() => navigate('/terms')}
-              >
-                <div className="flex items-center">
-                  <Shield size={18} className="mr-3 text-chef-medium-gray" />
-                  <span>Terms of Service</span>
-                </div>
-                <ChevronRight size={18} className="text-chef-medium-gray" />
-              </button>
-            </div>
-          </div>
-          
-          {/* Danger Zone */}
-          <div className="p-4">
-            <h2 className="text-lg font-semibold mb-2 text-red-500">Danger Zone</h2>
-            
-            <div className="space-y-4">
-              <Button
-                variant="outline"
-                className="w-full border-red-300 text-red-500 hover:bg-red-50 hover:text-red-600"
-                onClick={showDeleteConfirmation}
-              >
-                <Trash2 size={18} className="mr-2" />
-                Delete Account
-              </Button>
-              
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={handleLogout}
-              >
-                Logout
-              </Button>
-            </div>
-          </div>
+    <div className="max-w-md mx-auto bg-chef-light-gray min-h-screen pb-20">
+      <div className="bg-white p-4 shadow-sm">
+        <div className="flex items-center">
+          <button onClick={() => navigate(-1)} className="mr-2">
+            <ChevronLeft size={24} />
+          </button>
+          <h1 className="text-2xl font-bold">Settings</h1>
         </div>
       </div>
-    </Layout>
+      
+      <div className="bg-white mt-2 p-4">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="profile">Profile</TabsTrigger>
+            <TabsTrigger value="dietary">Dietary</TabsTrigger>
+            <TabsTrigger value="other">Other</TabsTrigger>
+          </TabsList>
+          
+          {/* Profile Settings */}
+          <TabsContent value="profile" className="py-4">
+            <div className="flex flex-col items-center mb-6">
+              <Avatar className="h-24 w-24 border-2 border-chef-primary">
+                <AvatarImage src={profile.photo} />
+                <AvatarFallback>JD</AvatarFallback>
+              </Avatar>
+              
+              <Button variant="ghost" size="sm" className="mt-2">
+                Change Photo
+              </Button>
+            </div>
+            
+            <form onSubmit={handleProfileUpdate} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Full Name</Label>
+                <Input
+                  id="name"
+                  value={profile.name}
+                  onChange={(e) => setProfile({...profile, name: e.target.value})}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={profile.email}
+                  onChange={(e) => setProfile({...profile, email: e.target.value})}
+                />
+              </div>
+              
+              <Button type="submit" className="w-full">
+                Save Changes
+              </Button>
+            </form>
+          </TabsContent>
+          
+          {/* Dietary Preferences */}
+          <TabsContent value="dietary" className="py-4">
+            <div className="space-y-4">
+              <h3 className="font-semibold mb-2">Dietary Preferences</h3>
+              <p className="text-chef-medium-gray text-sm mb-4">
+                Select your dietary preferences to get personalized recipe recommendations.
+              </p>
+              
+              <div className="space-y-2">
+                {Object.entries(dietaryPreferences).map(([key, value]) => (
+                  <div key={key} className="flex items-center justify-between py-2 border-b">
+                    <span className="capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
+                    <Switch 
+                      checked={value} 
+                      onCheckedChange={() => toggleDietaryPreference(key as keyof typeof dietaryPreferences)}
+                    />
+                  </div>
+                ))}
+              </div>
+              
+              <Button className="w-full mt-4">
+                Apply Preferences
+              </Button>
+            </div>
+          </TabsContent>
+          
+          {/* Other Settings */}
+          <TabsContent value="other" className="py-4">
+            <div className="space-y-6">
+              <div>
+                <h3 className="font-semibold mb-2">Notifications</h3>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between py-2 border-b">
+                    <span>Push Notifications</span>
+                    <Switch 
+                      checked={notifications.push} 
+                      onCheckedChange={() => toggleNotification('push')}
+                    />
+                  </div>
+                  
+                  <div className="flex items-center justify-between py-2 border-b">
+                    <span>Email Notifications</span>
+                    <Switch 
+                      checked={notifications.email} 
+                      onCheckedChange={() => toggleNotification('email')}
+                    />
+                  </div>
+                  
+                  <div className="flex items-center justify-between py-2 border-b">
+                    <span>Special Offers</span>
+                    <Switch 
+                      checked={notifications.offers} 
+                      onCheckedChange={() => toggleNotification('offers')}
+                    />
+                  </div>
+                  
+                  <div className="flex items-center justify-between py-2 border-b">
+                    <span>App Updates</span>
+                    <Switch 
+                      checked={notifications.updates} 
+                      onCheckedChange={() => toggleNotification('updates')}
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <h3 className="font-semibold mb-2">About</h3>
+                
+                <Button variant="ghost" className="w-full justify-start" onClick={() => navigate('/language')}>
+                  Language
+                </Button>
+                
+                <Button variant="ghost" className="w-full justify-start">
+                  About Chef Sezar
+                </Button>
+                
+                <Button variant="ghost" className="w-full justify-start">
+                  Privacy Policy
+                </Button>
+                
+                <Button variant="ghost" className="w-full justify-start">
+                  Terms of Service
+                </Button>
+              </div>
+              
+              <Button variant="destructive" className="w-full" onClick={() => navigate('/login')}>
+                Delete Account
+              </Button>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </div>
   );
 };
 

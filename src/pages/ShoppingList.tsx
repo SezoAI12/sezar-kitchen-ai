@@ -52,6 +52,12 @@ const ShoppingList = () => {
         { id: 'pa1', name: 'Olive Oil', quantity: '1 bottle', checked: false, category: 'Pantry' },
         { id: 'pa2', name: 'Rice', quantity: '2 lbs', checked: false, category: 'Pantry' },
       ]
+    },
+    {
+      name: 'Other',
+      items: [
+        { id: 'o1', name: 'Aluminum Foil', quantity: '1 roll', checked: false, category: 'Other' },
+      ]
     }
   ]);
   
@@ -224,6 +230,7 @@ const ShoppingList = () => {
                     <option value="Pantry">Pantry</option>
                     <option value="Bakery">Bakery</option>
                     <option value="Frozen">Frozen</option>
+                    <option value="Other">Other</option>
                   </select>
                 </div>
                 

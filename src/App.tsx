@@ -19,6 +19,7 @@ import Subscription from "./pages/Subscription";
 import Payment from "./pages/Payment";
 import RecipeSubmission from "./pages/RecipeSubmission";
 import Settings from "./pages/Settings";
+import AdminPanel from "./pages/AdminPanel";
 
 const queryClient = new QueryClient();
 
@@ -52,6 +53,9 @@ const App = () => (
           {/* Subscription and Payment */}
           <Route path="/subscription" element={<Subscription />} />
           <Route path="/payment" element={<Payment />} />
+          
+          {/* Admin Panel */}
+          <Route path="/admin" element={<AdminPanel />} />
           
           {/* 404 Page */}
           <Route path="*" element={<NotFound />} />

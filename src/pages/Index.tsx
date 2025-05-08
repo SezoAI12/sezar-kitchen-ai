@@ -1,178 +1,138 @@
-
-import { useState, useEffect } from 'react';
-import { useToast } from "@/components/ui/use-toast";
+import { useState } from 'react';
 import Layout from '../components/Layout';
 import CategorySelection, { Category } from '../components/CategorySelection';
 import SubcategorySelection from '../components/SubcategorySelection';
-import FilterSystem, { FilterOptions } from '../components/FilterSystem';
 import IngredientSelector from '../components/IngredientSelector';
-import FindRecipesButton from '../components/FindRecipesButton';
+import FilterSystem from '../components/FilterSystem';
 import QuickAccessBar from '../components/QuickAccessBar';
-import RecipeCard, { Recipe } from '../components/RecipeCard';
-
-type Ingredient = {
-  id: string;
-  name: string;
-  image: string;
-};
+import RecipeCard from '../components/RecipeCard';
+import { Button } from '@/components/ui/button';
+import { FileText, Plus } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Index = () => {
-  const { toast } = useToast();
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
-  const [filterOptions, setFilterOptions] = useState<FilterOptions>({});
-  const [selectedIngredients, setSelectedIngredients] = useState<Ingredient[]>([]);
-  const [recipes, setRecipes] = useState<Recipe[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  
+  const [selectedIngredients, setSelectedIngredients] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
+
   const handleCategorySelect = (category: Category) => {
     setSelectedCategory(category);
     setSelectedSubcategory(null);
   };
-  
+
   const handleSubcategorySelect = (subcategoryId: string) => {
     setSelectedSubcategory(subcategoryId);
   };
-  
-  const handleFilterChange = (filters: FilterOptions) => {
-    setFilterOptions(filters);
-  };
-  
-  const handleIngredientsChange = (ingredients: Ingredient[]) => {
-    setSelectedIngredients(ingredients);
+
+  const handleIngredientSelect = (ingredient: string) => {
+    if (selectedIngredients.includes(ingredient)) {
+      setSelectedIngredients(selectedIngredients.filter(i => i !== ingredient));
+    } else {
+      setSelectedIngredients([...selectedIngredients, ingredient]);
+    }
   };
 
-  // Mock function to simulate fetching recipes
-  const handleFindRecipes = () => {
-    if (selectedIngredients.length === 0) {
-      toast({
-        title: "No ingredients selected",
-        description: "Please add at least one ingredient to find recipes.",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    setIsLoading(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      const mockRecipes: Recipe[] = [
-        {
-          id: '1',
-          title: 'Homemade Pasta with Fresh Tomato Sauce',
-          image: 'https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&w=800&q=80',
-          time: '35 mins',
-          difficulty: 'easy',
-          cuisine: 'italian',
-          servings: 4,
-          usageCount: 245,
-          matchPercentage: 95
-        },
-        {
-          id: '2',
-          title: 'Garlic Butter Chicken with Roasted Vegetables',
-          image: 'https://images.unsplash.com/photo-1532550907401-a500c9a57435?auto=format&fit=crop&w=800&q=80',
-          time: '45 mins',
-          difficulty: 'medium',
-          cuisine: 'mediterranean',
-          servings: 2,
-          usageCount: 178,
-          matchPercentage: 82
-        },
-        {
-          id: '3',
-          title: 'Simple Egg Fried Rice',
-          image: 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=800&q=80',
-          time: '20 mins',
-          difficulty: 'easy',
-          cuisine: 'asian',
-          servings: 3,
-          usageCount: 312,
-          matchPercentage: 78
-        },
-        {
-          id: '4',
-          title: 'Creamy Mushroom Risotto',
-          image: 'https://images.unsplash.com/photo-1633352615955-f0c99e8b7e5a?auto=format&fit=crop&w=800&q=80',
-          time: '40 mins',
-          difficulty: 'medium',
-          cuisine: 'italian',
-          servings: 4,
-          usageCount: 156,
-          matchPercentage: 70
-        }
-      ];
-      
-      setRecipes(mockRecipes);
-      setIsLoading(false);
-      
-      toast({
-        title: "Recipes Found!",
-        description: `Found ${mockRecipes.length} recipes based on your ingredients.`,
-      });
-    }, 1500);
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
   };
+
+  const handleCreateRecipe = () => {
+    navigate('/recipe/submit');
+  };
+
+  // Sample recipe data for demonstration
+  const recipes = [
+    {
+      id: '1',
+      title: 'Spaghetti Carbonara',
+      imageUrl: 'https://images.unsplash.com/photo-1607305387299-a3d9611cd469?auto=format&fit=crop&w=400&q=80',
+      prepTime: '15 min',
+      cookTime: '20 min',
+      rating: 4.5,
+    },
+    {
+      id: '2',
+      title: 'Chicken Stir-Fry',
+      imageUrl: 'https://images.unsplash.com/photo-1546793665-490e79690e32?auto=format&fit=crop&w=400&q=80',
+      prepTime: '10 min',
+      cookTime: '25 min',
+      rating: 4.2,
+    },
+    {
+      id: '3',
+      title: 'Mushroom Risotto',
+      imageUrl: 'https://images.unsplash.com/photo-1518675215778-45c40942617a?auto=format&fit=crop&w=400&q=80',
+      prepTime: '20 min',
+      cookTime: '30 min',
+      rating: 4.8,
+    },
+    {
+      id: '4',
+      title: 'Vegan Chili',
+      imageUrl: 'https://images.unsplash.com/photo-1512621776951-a57141f2e3bb?auto=format&fit=crop&w=400&q=80',
+      prepTime: '15 min',
+      cookTime: '40 min',
+      rating: 4.0,
+    },
+  ];
 
   return (
     <Layout>
-      <div className="max-w-md mx-auto bg-chef-light-gray min-h-screen pb-24">
+      <div className="max-w-md mx-auto bg-chef-light-gray min-h-screen pb-20">
         {/* Header Section */}
         <header className="bg-white p-4 flex justify-between items-center shadow-sm">
           <h1 className="text-2xl font-bold font-montserrat text-chef-primary">Chef Sezar</h1>
         </header>
         
-        {/* Category Selection */}
-        <CategorySelection 
-          onCategorySelect={handleCategorySelect} 
-          selectedCategory={selectedCategory} 
-        />
-        
-        {/* Subcategory Selection - Show only if a category is selected */}
-        {selectedCategory && (
-          <SubcategorySelection 
-            category={selectedCategory} 
-            onSubcategorySelect={handleSubcategorySelect} 
-            selectedSubcategory={selectedSubcategory} 
-          />
-        )}
-        
-        {/* Filter Section */}
-        <FilterSystem 
-          onFilterChange={handleFilterChange} 
-          currentFilters={filterOptions} 
-        />
-        
+        {/* Share Recipe Button */}
+        <div className="px-4 py-3 bg-white border-b">
+          <Button 
+            onClick={handleCreateRecipe}
+            className="w-full flex items-center justify-center gap-2 bg-chef-secondary hover:bg-chef-secondary/90"
+          >
+            <FileText size={18} />
+            <span>Share Your Culinary Creation</span>
+          </Button>
+        </div>
+
         {/* Quick Access Bar */}
         <QuickAccessBar />
         
-        {/* Ingredient Selector */}
-        <IngredientSelector 
-          selectedIngredients={selectedIngredients} 
-          onIngredientsChange={handleIngredientsChange} 
+        {/* Category Selection */}
+        <CategorySelection 
+          onCategorySelect={handleCategorySelect}
+          selectedCategory={selectedCategory}
         />
         
-        {/* Recipe Results - Show only if recipes exist */}
-        {recipes.length > 0 && (
-          <section className="px-4 py-6">
-            <h2 className="text-xl font-bold mb-4">Recipe Suggestions</h2>
-            <div className="grid grid-cols-1 gap-4">
-              {recipes.map(recipe => (
-                <RecipeCard 
-                  key={recipe.id} 
-                  recipe={recipe} 
-                  showMatchPercentage 
-                />
-              ))}
-            </div>
-          </section>
+        {/* Subcategory Selection (conditionally rendered) */}
+        {selectedCategory && (
+          <SubcategorySelection 
+            category={selectedCategory}
+            onSubcategorySelect={handleSubcategorySelect}
+            selectedSubcategory={selectedSubcategory}
+          />
         )}
         
-        {/* Find Recipes Button */}
-        <FindRecipesButton 
-          onClick={handleFindRecipes} 
-          isLoading={isLoading} 
+        {/* Ingredient Selector */}
+        <IngredientSelector 
+          onIngredientSelect={handleIngredientSelect}
+          selectedIngredients={selectedIngredients}
         />
+        
+        {/* Filter System */}
+        <FilterSystem onSearch={handleSearch} />
+        
+        {/* Recipe Results */}
+        <section className="px-4 py-6">
+          <h2 className="text-xl font-bold mb-4">Recipes For You</h2>
+          <div className="grid grid-cols-2 gap-4">
+            {recipes.map(recipe => (
+              <RecipeCard key={recipe.id} recipe={recipe} />
+            ))}
+          </div>
+        </section>
       </div>
     </Layout>
   );
