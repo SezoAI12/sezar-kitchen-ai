@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, CreditCard, Calendar, Lock, Paypal } from 'lucide-react';
+import { ChevronLeft, CreditCard, Calendar, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -163,7 +163,11 @@ const Payment = () => {
             <TabsContent value="paypal" className="mt-4">
               <div className="text-center p-6 border rounded-md">
                 <div className="flex justify-center mb-4">
-                  <Paypal size={48} className="text-blue-600" />
+                  <svg className="h-12 w-12 text-blue-600" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20.067 8.478c.492.88.556 2.014.3 3.327-.74 3.806-3.276 5.12-6.514 5.12h-.5a.805.805 0 0 0-.794.68l-.04.22-.63 4.028-.024.15a.79.79 0 0 1-.784.679h-2.761a.56.56 0 0 1-.551-.647l.012-.077 1.168-7.42.03-.149a.796.796 0 0 1 .788-.68h2.358c2.417 0 4.316-.927 4.878-3.484.274-1.267.291-2.312-.488-3.066a1.707 1.707 0 0 0-.326-.232c.334.048.654.136.958.251Z"/>
+                    <path d="M18.481 6.267c-.009.043-.02.085-.03.128-.74 3.807-3.276 5.12-6.513 5.12h-.5a.805.805 0 0 0-.794.68l-.04.22-.632 4.028-.023.15a.79.79 0 0 1-.784.679h-2.76a.56.56 0 0 1-.552-.647l.012-.077 1.168-7.42.031-.149a.796.796 0 0 1 .788-.68h2.358c2.417 0 4.316-.927 4.878-3.484.186-.86.216-1.58.103-2.173a4.885 4.885 0 0 1 3.29 3.625Z"/>
+                    <path d="M7.773 6.22a.679.679 0 0 1 .67-.57h4.252c.5 0 .967.06 1.395.184.1.028.194.06.284.092.255.09.489.204.699.34.334.049.654.137.958.251.492.88.555 2.014.3 3.327-.74 3.807-3.276 5.12-6.514 5.12h-.5a.805.805 0 0 0-.794.68l-.04.22-.63 4.027-.025.15a.791.791 0 0 1-.784.68H4.282a.56.56 0 0 1-.551-.648l.012-.076 1.214-7.712.04-.249Z"/>
+                  </svg>
                 </div>
                 <p className="mb-6">Click the button below to pay with PayPal</p>
                 <Button 

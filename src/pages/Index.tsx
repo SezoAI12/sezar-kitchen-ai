@@ -1,20 +1,28 @@
+
 import { useState } from 'react';
 import Layout from '../components/Layout';
 import CategorySelection, { Category } from '../components/CategorySelection';
 import SubcategorySelection from '../components/SubcategorySelection';
 import IngredientSelector from '../components/IngredientSelector';
-import FilterSystem from '../components/FilterSystem';
+import FilterSystem, { FilterOptions } from '../components/FilterSystem';
 import QuickAccessBar from '../components/QuickAccessBar';
 import RecipeCard from '../components/RecipeCard';
 import { Button } from '@/components/ui/button';
-import { FileText, Plus } from 'lucide-react';
+import { FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+
+type Ingredient = {
+  id: string;
+  name: string;
+  image: string;
+};
 
 const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
-  const [selectedIngredients, setSelectedIngredients] = useState<string[]>([]);
+  const [selectedIngredients, setSelectedIngredients] = useState<Ingredient[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [filterOptions, setFilterOptions] = useState<FilterOptions>({});
   const navigate = useNavigate();
 
   const handleCategorySelect = (category: Category) => {
@@ -26,12 +34,12 @@ const Index = () => {
     setSelectedSubcategory(subcategoryId);
   };
 
-  const handleIngredientSelect = (ingredient: string) => {
-    if (selectedIngredients.includes(ingredient)) {
-      setSelectedIngredients(selectedIngredients.filter(i => i !== ingredient));
-    } else {
-      setSelectedIngredients([...selectedIngredients, ingredient]);
-    }
+  const handleIngredientsChange = (ingredients: Ingredient[]) => {
+    setSelectedIngredients(ingredients);
+  };
+
+  const handleFilterChange = (filters: FilterOptions) => {
+    setFilterOptions(filters);
   };
 
   const handleSearch = (query: string) => {
@@ -47,34 +55,38 @@ const Index = () => {
     {
       id: '1',
       title: 'Spaghetti Carbonara',
-      imageUrl: 'https://images.unsplash.com/photo-1607305387299-a3d9611cd469?auto=format&fit=crop&w=400&q=80',
-      prepTime: '15 min',
-      cookTime: '20 min',
-      rating: 4.5,
+      image: 'https://images.unsplash.com/photo-1607305387299-a3d9611cd469?auto=format&fit=crop&w=400&q=80',
+      time: '35 min',
+      difficulty: 'medium' as const,
+      cuisine: 'italian',
+      servings: 4,
     },
     {
       id: '2',
       title: 'Chicken Stir-Fry',
-      imageUrl: 'https://images.unsplash.com/photo-1546793665-490e79690e32?auto=format&fit=crop&w=400&q=80',
-      prepTime: '10 min',
-      cookTime: '25 min',
-      rating: 4.2,
+      image: 'https://images.unsplash.com/photo-1546793665-490e79690e32?auto=format&fit=crop&w=400&q=80',
+      time: '35 min',
+      difficulty: 'easy' as const,
+      cuisine: 'chinese',
+      servings: 3,
     },
     {
       id: '3',
       title: 'Mushroom Risotto',
-      imageUrl: 'https://images.unsplash.com/photo-1518675215778-45c40942617a?auto=format&fit=crop&w=400&q=80',
-      prepTime: '20 min',
-      cookTime: '30 min',
-      rating: 4.8,
+      image: 'https://images.unsplash.com/photo-1518675215778-45c40942617a?auto=format&fit=crop&w=400&q=80',
+      time: '50 min',
+      difficulty: 'medium' as const,
+      cuisine: 'italian',
+      servings: 4,
     },
     {
       id: '4',
       title: 'Vegan Chili',
-      imageUrl: 'https://images.unsplash.com/photo-1512621776951-a57141f2e3bb?auto=format&fit=crop&w=400&q=80',
-      prepTime: '15 min',
-      cookTime: '40 min',
-      rating: 4.0,
+      image: 'https://images.unsplash.com/photo-1512621776951-a57141f2e3bb?auto=format&fit=crop&w=400&q=80',
+      time: '55 min',
+      difficulty: 'easy' as const,
+      cuisine: 'american',
+      servings: 6,
     },
   ];
 
@@ -117,12 +129,15 @@ const Index = () => {
         
         {/* Ingredient Selector */}
         <IngredientSelector 
-          onIngredientSelect={handleIngredientSelect}
           selectedIngredients={selectedIngredients}
+          onIngredientsChange={handleIngredientsChange}
         />
         
         {/* Filter System */}
-        <FilterSystem onSearch={handleSearch} />
+        <FilterSystem 
+          onFilterChange={handleFilterChange}
+          currentFilters={filterOptions}
+        />
         
         {/* Recipe Results */}
         <section className="px-4 py-6">
