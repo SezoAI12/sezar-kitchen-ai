@@ -8,6 +8,10 @@ import {
   Clock, 
   Star,
   LogOut,
+  Calendar,
+  ShoppingBasket,
+  FileText,
+  Edit,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -24,7 +28,7 @@ const Profile = () => {
         {/* Header Section */}
         <header className="bg-white p-4 flex justify-between items-center shadow-sm">
           <h1 className="text-2xl font-bold font-montserrat text-chef-primary">Profile</h1>
-          <Button variant="ghost" size="icon">
+          <Button variant="ghost" size="icon" onClick={() => navigate('/settings')}>
             <Settings size={20} />
           </Button>
         </header>
@@ -44,9 +48,11 @@ const Profile = () => {
               <Button 
                 variant="outline" 
                 size="sm"
-                onClick={() => setIsEditing(!isEditing)}
+                onClick={() => navigate('/settings')}
+                className="flex items-center gap-1"
               >
-                {isEditing ? 'Save Profile' : 'Edit Profile'}
+                <Edit size={16} />
+                <span>Edit Profile</span>
               </Button>
             </div>
           </div>
@@ -60,6 +66,7 @@ const Profile = () => {
               variant="secondary" 
               size="sm" 
               className="text-chef-primary"
+              onClick={() => navigate('/subscription')}
             >
               Upgrade
             </Button>
@@ -68,6 +75,31 @@ const Profile = () => {
           <p className="text-sm mt-2 opacity-90">
             Unlock premium features like detailed nutrition analysis, meal planning, and more!
           </p>
+        </div>
+        
+        {/* Premium Features */}
+        <div className="mt-4 px-4 py-3 bg-white">
+          <h3 className="text-lg font-semibold mb-3">Premium Features</h3>
+          
+          <div className="grid grid-cols-2 gap-3">
+            <Button 
+              variant="outline" 
+              className="h-auto py-4 flex flex-col items-center"
+              onClick={() => navigate('/meal-planning')}
+            >
+              <Calendar size={24} className="mb-2 text-chef-primary" />
+              <span>Meal Planning</span>
+            </Button>
+            
+            <Button 
+              variant="outline"
+              className="h-auto py-4 flex flex-col items-center"
+              onClick={() => navigate('/shopping-list')}
+            >
+              <ShoppingBasket size={24} className="mb-2 text-chef-accent" />
+              <span>Shopping List</span>
+            </Button>
+          </div>
         </div>
         
         {/* My Collections */}
@@ -93,12 +125,24 @@ const Profile = () => {
           </div>
         </div>
         
+        {/* Create Recipe */}
+        <div className="mt-4 px-4">
+          <Button 
+            variant="default" 
+            className="w-full flex items-center justify-center gap-2"
+            onClick={() => navigate('/recipe/submit')}
+          >
+            <FileText size={18} />
+            <span>Create New Recipe</span>
+          </Button>
+        </div>
+        
         {/* Account Settings */}
         <div className="mt-4 px-4 py-3 bg-white">
           <h3 className="text-lg font-semibold mb-3">Account Settings</h3>
           
           <div className="divide-y">
-            <div className="py-3 flex items-center justify-between">
+            <div className="py-3 flex items-center justify-between" onClick={() => navigate('/settings')}>
               <div className="flex items-center">
                 <span>Dietary Preferences</span>
               </div>
@@ -112,7 +156,7 @@ const Profile = () => {
               <Switch />
             </div>
             
-            <div className="py-3 flex items-center justify-between">
+            <div className="py-3 flex items-center justify-between" onClick={() => navigate('/language')}>
               <div className="flex items-center">
                 <span>Language</span>
               </div>
@@ -121,32 +165,7 @@ const Profile = () => {
                 <ChevronRight size={20} className="text-chef-medium-gray" />
               </div>
             </div>
-            
-            <div className="py-3 flex items-center justify-between">
-              <div className="flex items-center">
-                <span>About Chef Sezar</span>
-              </div>
-              <ChevronRight size={20} className="text-chef-medium-gray" />
-            </div>
-            
-            <div className="py-3 flex items-center justify-between">
-              <div className="flex items-center">
-                <span>Privacy Policy</span>
-              </div>
-              <ChevronRight size={20} className="text-chef-medium-gray" />
-            </div>
           </div>
-        </div>
-        
-        {/* Log Out */}
-        <div className="mt-4 px-4">
-          <Button 
-            variant="destructive" 
-            className="w-full flex items-center justify-center gap-2"
-          >
-            <LogOut size={18} />
-            <span>Log Out</span>
-          </Button>
         </div>
       </div>
     </Layout>

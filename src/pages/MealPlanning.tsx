@@ -1,314 +1,250 @@
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
-import { ChevronLeft, ChevronRight, Plus, ShoppingCart } from 'lucide-react';
+import { ChevronLeft, Calendar, Clock, Plus, Edit, Trash2 } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
 
 type Meal = {
   id: string;
-  title: string;
-  recipeId: string;
+  name: string;
+  time: string;
   image: string;
+  recipe_id: string;
 };
 
-type MealPlan = {
-  breakfast: Meal | null;
-  lunch: Meal | null;
-  dinner: Meal | null;
-};
-
-type MealPlans = {
-  [date: string]: MealPlan;
+type DayPlan = {
+  date: string;
+  formatted_date: string;
+  day_name: string;
+  meals: Meal[];
 };
 
 const MealPlanning = () => {
   const navigate = useNavigate();
-  const [date, setDate] = useState<Date>(new Date());
-  const [mealPlans, setMealPlans] = useState<MealPlans>({});
+  const { toast } = useToast();
   
-  const formattedDate = date.toISOString().split('T')[0];
-  
-  // Initialize today's plan if it doesn't exist
-  if (!mealPlans[formattedDate]) {
-    setMealPlans({
-      ...mealPlans,
-      [formattedDate]: {
-        breakfast: null,
-        lunch: null,
-        dinner: null
-      }
+  // Mock data for meal plans
+  const [weekPlan, setWeekPlan] = useState<DayPlan[]>([
+    {
+      date: '2023-05-08',
+      formatted_date: 'May 8',
+      day_name: 'Monday',
+      meals: [
+        {
+          id: 'm1',
+          name: 'Avocado Toast',
+          time: 'Breakfast',
+          image: 'https://images.unsplash.com/photo-1588137378633-dea1336ce1e2?auto=format&fit=crop&w=200&q=80',
+          recipe_id: 'r1'
+        },
+        {
+          id: 'm2',
+          name: 'Chicken Salad',
+          time: 'Lunch',
+          image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=200&q=80',
+          recipe_id: 'r2'
+        }
+      ]
+    },
+    {
+      date: '2023-05-09',
+      formatted_date: 'May 9',
+      day_name: 'Tuesday',
+      meals: [
+        {
+          id: 'm3',
+          name: 'Oatmeal with Berries',
+          time: 'Breakfast',
+          image: 'https://images.unsplash.com/photo-1517093728432-3c1c481da82d?auto=format&fit=crop&w=200&q=80',
+          recipe_id: 'r3'
+        }
+      ]
+    },
+    {
+      date: '2023-05-10',
+      formatted_date: 'May 10',
+      day_name: 'Wednesday',
+      meals: []
+    },
+    {
+      date: '2023-05-11',
+      formatted_date: 'May 11',
+      day_name: 'Thursday',
+      meals: [
+        {
+          id: 'm4',
+          name: 'Pasta Carbonara',
+          time: 'Dinner',
+          image: 'https://images.unsplash.com/photo-1588486589329-a8c854e7a1ba?auto=format&fit=crop&w=200&q=80',
+          recipe_id: 'r4'
+        }
+      ]
+    },
+    {
+      date: '2023-05-12',
+      formatted_date: 'May 12',
+      day_name: 'Friday',
+      meals: []
+    },
+    {
+      date: '2023-05-13',
+      formatted_date: 'May 13',
+      day_name: 'Saturday',
+      meals: []
+    },
+    {
+      date: '2023-05-14',
+      formatted_date: 'May 14',
+      day_name: 'Sunday',
+      meals: []
+    }
+  ]);
+
+  const handleAddMeal = (date: string) => {
+    toast({
+      title: "Feature coming soon",
+      description: "This feature will be available in the next update"
     });
-  }
-  
-  const currentPlan = mealPlans[formattedDate] || {
-    breakfast: null,
-    lunch: null,
-    dinner: null
   };
   
-  const handleAddMeal = (mealType: 'breakfast' | 'lunch' | 'dinner') => {
-    // In a real app, this would open a meal selector
-    // For now, let's add a mock meal
-    const mockMeals = {
-      breakfast: {
-        id: 'b1',
-        title: 'Avocado Toast with Eggs',
-        recipeId: 'recipe-1',
-        image: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=800&q=80'
-      },
-      lunch: {
-        id: 'l1',
-        title: 'Quinoa Salad Bowl',
-        recipeId: 'recipe-2',
-        image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80'
-      },
-      dinner: {
-        id: 'd1',
-        title: 'Baked Salmon with Vegetables',
-        recipeId: 'recipe-3',
-        image: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?auto=format&fit=crop&w=800&q=80'
+  const handleEditMeal = (mealId: string) => {
+    toast({
+      title: "Edit meal",
+      description: `Editing meal ${mealId}`
+    });
+  };
+  
+  const handleDeleteMeal = (mealId: string, date: string) => {
+    // Find the day in the week plan
+    const updatedWeekPlan = weekPlan.map(day => {
+      if (day.date === date) {
+        return {
+          ...day,
+          meals: day.meals.filter(meal => meal.id !== mealId)
+        };
       }
-    };
+      return day;
+    });
     
-    setMealPlans({
-      ...mealPlans,
-      [formattedDate]: {
-        ...currentPlan,
-        [mealType]: mockMeals[mealType]
-      }
+    setWeekPlan(updatedWeekPlan);
+    
+    toast({
+      title: "Meal removed",
+      description: "Meal has been removed from your plan"
     });
   };
-  
-  const handleRemoveMeal = (mealType: 'breakfast' | 'lunch' | 'dinner') => {
-    setMealPlans({
-      ...mealPlans,
-      [formattedDate]: {
-        ...currentPlan,
-        [mealType]: null
-      }
-    });
-  };
-  
-  const handleViewShoppingList = () => {
-    navigate('/shopping-list');
-  };
-  
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('en-US', {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    }).format(date);
+
+  const handleViewRecipe = (recipeId: string) => {
+    navigate(`/recipe/${recipeId}`);
   };
 
   return (
     <Layout>
       <div className="max-w-md mx-auto bg-chef-light-gray min-h-screen pb-20">
         <div className="bg-white p-4 shadow-sm">
-          <h1 className="text-2xl font-bold text-center mb-1">Meal Planning</h1>
-          <p className="text-chef-medium-gray text-center text-sm">Plan your meals for the week</p>
+          <div className="flex items-center">
+            <button onClick={() => navigate(-1)} className="mr-2">
+              <ChevronLeft size={24} />
+            </button>
+            <div>
+              <h1 className="text-2xl font-bold">Meal Planning</h1>
+              <p className="text-chef-medium-gray text-sm">Plan your meals for the week</p>
+            </div>
+          </div>
         </div>
         
         <div className="bg-white mt-2 p-4">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">Calendar</h2>
-            <div className="flex items-center">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setDate(new Date(date.getTime() - 86400000))}
-              >
-                <ChevronLeft size={20} />
-              </Button>
-              
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setDate(new Date())}
-              >
-                Today
-              </Button>
-              
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setDate(new Date(date.getTime() + 86400000))}
-              >
-                <ChevronRight size={20} />
-              </Button>
-            </div>
-          </div>
+          <h2 className="text-lg font-semibold mb-4">This Week's Plan</h2>
           
-          <Calendar
-            mode="single"
-            selected={date}
-            onSelect={(newDate) => newDate && setDate(newDate)}
-            className="rounded-md border"
-          />
-        </div>
-        
-        <div className="bg-white mt-2 p-4">
-          <h3 className="text-lg font-semibold mb-2">
-            Meals for {formatDate(date)}
-          </h3>
-          
-          {/* Breakfast */}
-          <div className="mb-4 border rounded-lg p-4">
-            <div className="flex justify-between items-center mb-2">
-              <h4 className="font-medium">Breakfast</h4>
-              {currentPlan.breakfast ? (
-                <Button 
-                  variant="destructive" 
-                  size="sm"
-                  onClick={() => handleRemoveMeal('breakfast')}
-                >
-                  Remove
-                </Button>
-              ) : (
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => handleAddMeal('breakfast')}
-                  className="flex items-center gap-1"
-                >
-                  <Plus size={16} />
-                  <span>Add</span>
-                </Button>
-              )}
-            </div>
-            
-            {currentPlan.breakfast ? (
-              <div className="flex items-center">
-                <img 
-                  src={currentPlan.breakfast.image} 
-                  alt={currentPlan.breakfast.title} 
-                  className="w-16 h-16 object-cover rounded-md"
-                />
-                <div className="ml-3">
-                  <p className="font-medium">{currentPlan.breakfast.title}</p>
+          <div className="space-y-6">
+            {weekPlan.map((day) => (
+              <div key={day.date} className="border rounded-lg overflow-hidden">
+                <div className="bg-chef-light-gray p-3 flex justify-between items-center">
+                  <div className="flex items-center">
+                    <Calendar size={18} className="mr-2 text-chef-medium-gray" />
+                    <span><strong>{day.day_name}</strong> - {day.formatted_date}</span>
+                  </div>
                   <Button 
-                    variant="link" 
-                    className="p-0 h-auto text-chef-primary"
-                    onClick={() => navigate(`/recipe/${currentPlan.breakfast?.recipeId}`)}
+                    variant="ghost" 
+                    size="sm" 
+                    className="flex items-center gap-1"
+                    onClick={() => handleAddMeal(day.date)}
                   >
-                    View Recipe
+                    <Plus size={16} />
+                    <span className="text-xs">Add</span>
                   </Button>
                 </div>
-              </div>
-            ) : (
-              <div className="text-sm text-chef-medium-gray">No breakfast planned</div>
-            )}
-          </div>
-          
-          {/* Lunch */}
-          <div className="mb-4 border rounded-lg p-4">
-            <div className="flex justify-between items-center mb-2">
-              <h4 className="font-medium">Lunch</h4>
-              {currentPlan.lunch ? (
-                <Button 
-                  variant="destructive" 
-                  size="sm"
-                  onClick={() => handleRemoveMeal('lunch')}
-                >
-                  Remove
-                </Button>
-              ) : (
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => handleAddMeal('lunch')}
-                  className="flex items-center gap-1"
-                >
-                  <Plus size={16} />
-                  <span>Add</span>
-                </Button>
-              )}
-            </div>
-            
-            {currentPlan.lunch ? (
-              <div className="flex items-center">
-                <img 
-                  src={currentPlan.lunch.image} 
-                  alt={currentPlan.lunch.title} 
-                  className="w-16 h-16 object-cover rounded-md"
-                />
-                <div className="ml-3">
-                  <p className="font-medium">{currentPlan.lunch.title}</p>
-                  <Button 
-                    variant="link" 
-                    className="p-0 h-auto text-chef-primary"
-                    onClick={() => navigate(`/recipe/${currentPlan.lunch?.recipeId}`)}
-                  >
-                    View Recipe
-                  </Button>
+                
+                <div>
+                  {day.meals.length > 0 ? (
+                    day.meals.map((meal) => (
+                      <div 
+                        key={meal.id}
+                        className="flex items-center p-3 border-t"
+                      >
+                        <div
+                          className="w-16 h-16 rounded-md bg-cover bg-center flex-shrink-0 cursor-pointer"
+                          style={{ backgroundImage: `url(${meal.image})` }}
+                          onClick={() => handleViewRecipe(meal.recipe_id)}
+                        ></div>
+                        
+                        <div className="ml-3 flex-grow" onClick={() => handleViewRecipe(meal.recipe_id)}>
+                          <h3 className="font-medium">{meal.name}</h3>
+                          <div className="flex items-center text-chef-medium-gray text-sm">
+                            <Clock size={14} className="mr-1" />
+                            <span>{meal.time}</span>
+                          </div>
+                        </div>
+                        
+                        <div className="flex space-x-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-chef-medium-gray"
+                            onClick={() => handleEditMeal(meal.id)}
+                          >
+                            <Edit size={18} />
+                          </Button>
+                          
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-chef-medium-gray"
+                            onClick={() => handleDeleteMeal(meal.id, day.date)}
+                          >
+                            <Trash2 size={18} />
+                          </Button>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="p-4 text-center text-chef-medium-gray">
+                      <p>No meals planned</p>
+                      <Button 
+                        variant="link" 
+                        className="text-chef-primary p-0 h-auto text-sm"
+                        onClick={() => handleAddMeal(day.date)}
+                      >
+                        Add meal
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </div>
-            ) : (
-              <div className="text-sm text-chef-medium-gray">No lunch planned</div>
-            )}
+            ))}
           </div>
           
-          {/* Dinner */}
-          <div className="mb-4 border rounded-lg p-4">
-            <div className="flex justify-between items-center mb-2">
-              <h4 className="font-medium">Dinner</h4>
-              {currentPlan.dinner ? (
-                <Button 
-                  variant="destructive" 
-                  size="sm"
-                  onClick={() => handleRemoveMeal('dinner')}
-                >
-                  Remove
-                </Button>
-              ) : (
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => handleAddMeal('dinner')}
-                  className="flex items-center gap-1"
-                >
-                  <Plus size={16} />
-                  <span>Add</span>
-                </Button>
-              )}
-            </div>
-            
-            {currentPlan.dinner ? (
-              <div className="flex items-center">
-                <img 
-                  src={currentPlan.dinner.image} 
-                  alt={currentPlan.dinner.title} 
-                  className="w-16 h-16 object-cover rounded-md"
-                />
-                <div className="ml-3">
-                  <p className="font-medium">{currentPlan.dinner.title}</p>
-                  <Button 
-                    variant="link" 
-                    className="p-0 h-auto text-chef-primary"
-                    onClick={() => navigate(`/recipe/${currentPlan.dinner?.recipeId}`)}
-                  >
-                    View Recipe
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <div className="text-sm text-chef-medium-gray">No dinner planned</div>
-            )}
+          <div className="mt-6">
+            <Button 
+              variant="outline" 
+              className="w-full flex items-center justify-center gap-2"
+              onClick={() => navigate('/shopping-list')}
+            >
+              <span>Generate Shopping List</span>
+            </Button>
           </div>
-        </div>
-        
-        {/* Shopping List Button */}
-        <div className="fixed bottom-20 left-0 right-0 px-4 py-3 bg-gradient-to-t from-white to-transparent max-w-md mx-auto">
-          <Button
-            className="w-full py-6 bg-chef-primary hover:bg-chef-primary/90 flex items-center justify-center gap-3"
-            onClick={handleViewShoppingList}
-          >
-            <ShoppingCart size={20} />
-            <span>View Shopping List</span>
-          </Button>
         </div>
       </div>
     </Layout>
