@@ -4,7 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { 
   Home, 
   Globe, 
-  Pantry, 
+  ShoppingBasket, 
   User 
 } from 'lucide-react';
 
@@ -53,7 +53,7 @@ const Layout = ({ children }: LayoutProps) => {
             isActive('/pantry') ? 'text-chef-primary border-t-2 border-chef-primary' : 'text-chef-medium-gray'
           }`}
         >
-          <Pantry size={24} />
+          <ShoppingBasket size={24} />
           <span className="text-xs mt-0.5">Pantry</span>
         </Link>
         
