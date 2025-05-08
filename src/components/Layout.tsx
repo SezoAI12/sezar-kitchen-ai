@@ -7,6 +7,7 @@ import {
   ShoppingBasket, 
   User 
 } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 type LayoutProps = {
   children: ReactNode;
@@ -14,6 +15,7 @@ type LayoutProps = {
 
 const Layout = ({ children }: LayoutProps) => {
   const location = useLocation();
+  const isMobile = useIsMobile();
   
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -26,14 +28,14 @@ const Layout = ({ children }: LayoutProps) => {
       </main>
       
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.1)] flex justify-around items-center h-16 px-2">
+      <nav className="fixed bottom-0 left-0 right-0 bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.1)] flex justify-around items-center h-16 px-2 z-10">
         <Link 
           to="/" 
           className={`flex flex-col items-center justify-center w-1/4 pt-1 ${
             isActive('/') ? 'text-chef-primary border-t-2 border-chef-primary' : 'text-chef-medium-gray'
           }`}
         >
-          <Home size={24} />
+          <Home size={isMobile ? 20 : 24} />
           <span className="text-xs mt-0.5">Home</span>
         </Link>
         
@@ -43,7 +45,7 @@ const Layout = ({ children }: LayoutProps) => {
             isActive('/global') ? 'text-chef-primary border-t-2 border-chef-primary' : 'text-chef-medium-gray'
           }`}
         >
-          <Globe size={24} />
+          <Globe size={isMobile ? 20 : 24} />
           <span className="text-xs mt-0.5">Global</span>
         </Link>
         
@@ -53,7 +55,7 @@ const Layout = ({ children }: LayoutProps) => {
             isActive('/pantry') ? 'text-chef-primary border-t-2 border-chef-primary' : 'text-chef-medium-gray'
           }`}
         >
-          <ShoppingBasket size={24} />
+          <ShoppingBasket size={isMobile ? 20 : 24} />
           <span className="text-xs mt-0.5">Pantry</span>
         </Link>
         
@@ -63,7 +65,7 @@ const Layout = ({ children }: LayoutProps) => {
             isActive('/profile') ? 'text-chef-primary border-t-2 border-chef-primary' : 'text-chef-medium-gray'
           }`}
         >
-          <User size={24} />
+          <User size={isMobile ? 20 : 24} />
           <span className="text-xs mt-0.5">Profile</span>
         </Link>
       </nav>

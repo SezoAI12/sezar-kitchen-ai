@@ -9,17 +9,22 @@ import {
   Clock,
   Users,
   ChefHat,
-  Star
+  Star,
+  Timer
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useToast } from "@/components/ui/use-toast";
 
 const Recipe = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [isSaved, setIsSaved] = useState(false);
   const [servings, setServings] = useState(4);
+  const [isCooking, setIsCooking] = useState(false);
+  const [currentStep, setCurrentStep] = useState(0);
   
   // Mock recipe data
   const recipe = {
@@ -68,15 +73,27 @@ const Recipe = () => {
   
   const handleSave = () => {
     setIsSaved(!isSaved);
+    
+    toast({
+      title: isSaved ? "Removed from favorites" : "Saved to favorites",
+      description: isSaved ? "Recipe removed from your favorites" : "Recipe added to your favorites",
+    });
   };
   
   const handleShare = () => {
     // Implement share functionality
-    alert('Share functionality would open native share dialog');
+    toast({
+      title: "Sharing recipe",
+      description: "Opening share options...",
+    });
   };
   
   const handleBack = () => {
-    navigate(-1);
+    if (isCooking) {
+      setIsCooking(false);
+    } else {
+      navigate(-1);
+    }
   };
   
   const adjustServings = (increment: number) => {
@@ -94,6 +111,94 @@ const Recipe = () => {
     const adjusted = (numericQuantity * ratio).toFixed(1).replace(/\.0$/, '');
     return adjusted;
   };
+
+  const handleCookNow = () => {
+    setIsCooking(true);
+    setCurrentStep(0);
+    toast({
+      title: "Cooking mode activated",
+      description: "Follow the step-by-step instructions to prepare your meal!"
+    });
+  };
+
+  const nextStep = () => {
+    if (currentStep < recipe.instructions.length - 1) {
+      setCurrentStep(currentStep + 1);
+    } else {
+      setIsCooking(false);
+      toast({
+        title: "Cooking complete!",
+        description: "Enjoy your meal!"
+      });
+    }
+  };
+
+  const previousStep = () => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+  // If in cooking mode, show the cooking interface
+  if (isCooking) {
+    return (
+      <Layout>
+        <div className="max-w-md mx-auto bg-chef-light-gray min-h-screen pb-20">
+          <div className="bg-white p-4 shadow-sm flex items-center justify-between">
+            <button 
+              onClick={handleBack}
+              className="flex items-center text-chef-medium-gray"
+            >
+              <ChevronLeft size={24} />
+              <span>Exit Cooking</span>
+            </button>
+            <span className="font-bold">Step {currentStep + 1}/{recipe.instructions.length}</span>
+          </div>
+
+          <div className="p-4 bg-white mt-2 flex-1">
+            <h2 className="text-xl font-semibold mb-4">{recipe.title}</h2>
+            
+            <div className="bg-chef-light-gray p-6 rounded-lg mb-4 min-h-[200px] flex items-center justify-center">
+              <p className="text-lg">{recipe.instructions[currentStep]}</p>
+            </div>
+            
+            <div className="flex items-center justify-center mb-8">
+              <Button
+                variant="outline"
+                className="flex items-center gap-2"
+                onClick={() => {
+                  toast({
+                    title: "Timer started",
+                    description: "Your timer is running"
+                  });
+                }}
+              >
+                <Timer size={18} />
+                <span>Start Timer</span>
+              </Button>
+            </div>
+            
+            <div className="flex justify-between mt-8">
+              <Button 
+                variant="outline" 
+                onClick={previousStep}
+                disabled={currentStep === 0}
+              >
+                Previous
+              </Button>
+              
+              <Button 
+                onClick={nextStep}
+                className="bg-chef-primary hover:bg-chef-primary/90"
+              >
+                {currentStep === recipe.instructions.length - 1 ? "Finish" : "Next Step"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -259,9 +364,10 @@ const Recipe = () => {
         </div>
         
         {/* Cook Now Button */}
-        <div className="fixed bottom-20 left-0 right-0 px-4 py-3 bg-gradient-to-t from-white to-transparent">
+        <div className="fixed bottom-20 left-0 right-0 px-4 py-3 bg-gradient-to-t from-white to-transparent max-w-md mx-auto">
           <Button
             className="w-full py-6 bg-chef-secondary hover:bg-chef-secondary/90 flex items-center justify-center gap-3 text-lg"
+            onClick={handleCookNow}
           >
             <ChefHat size={24} />
             <span>Cook Now</span>

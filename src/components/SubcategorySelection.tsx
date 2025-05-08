@@ -50,18 +50,18 @@ const SubcategorySelection = ({
     <div className="px-4 py-3 bg-white">
       <h3 className="text-sm text-chef-medium-gray mb-2">Select a subcategory</h3>
       
-      <div className="flex gap-3 pb-1 overflow-x-auto hide-scrollbar">
+      <div className="grid grid-cols-4 gap-2">
         {subcategories[category].map((subcategory) => (
           <motion.button
             key={subcategory.id}
-            className={`subcategory-chip whitespace-nowrap ${
+            className={`subcategory-chip flex flex-col items-center justify-center py-2 px-1 ${
               selectedSubcategory === subcategory.id ? 'active' : ''
             }`}
             whileTap={{ scale: 0.95 }}
             onClick={() => handleSubcategoryClick(subcategory.id)}
           >
-            <span className="text-xl">{subcategory.icon}</span>
-            <span>{subcategory.name}</span>
+            <span className="text-xl mb-1">{subcategory.icon}</span>
+            <span className="text-xs text-center leading-tight">{subcategory.name}</span>
           </motion.button>
         ))}
       </div>
