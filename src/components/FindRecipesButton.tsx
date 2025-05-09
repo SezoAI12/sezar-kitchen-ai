@@ -10,7 +10,7 @@ type FindRecipesButtonProps = {
 
 const FindRecipesButton = ({ onClick, isLoading = false }: FindRecipesButtonProps) => {
   return (
-    <div className="px-4 py-3 bg-gradient-to-t from-white/60 to-transparent">
+    <div className="py-3">
       <Button
         className="w-full py-6 bg-gradient-to-r from-chef-primary to-chef-primary/80 hover:opacity-95 flex items-center justify-center gap-3 text-lg shadow-md"
         onClick={onClick}

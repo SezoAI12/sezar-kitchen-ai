@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Heart, Clock, Globe } from 'lucide-react';
+import { Heart, Clock } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useNavigate } from 'react-router-dom';
 
@@ -10,8 +10,10 @@ const QuickAccessBar = () => {
   
   const handleTabChange = (value: string) => {
     setActiveTab(value);
-    if (value === 'global') {
-      navigate('/global');
+    if (value === 'saved') {
+      navigate('/favorites');
+    } else if (value === 'history') {
+      navigate('/history');
     }
   };
   
@@ -23,18 +25,14 @@ const QuickAccessBar = () => {
         onValueChange={handleTabChange}
         className="w-full"
       >
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="saved" className="flex items-center gap-2">
             <Heart size={18} />
-            <span>Saved</span>
+            <span>Favorites</span>
           </TabsTrigger>
           <TabsTrigger value="history" className="flex items-center gap-2">
             <Clock size={18} />
             <span>History</span>
-          </TabsTrigger>
-          <TabsTrigger value="global" className="flex items-center gap-2">
-            <Globe size={18} />
-            <span>Global</span>
           </TabsTrigger>
         </TabsList>
       </Tabs>

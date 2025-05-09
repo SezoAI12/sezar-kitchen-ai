@@ -72,10 +72,6 @@ const Index = () => {
       navigate('/global');
     }, 1500);
   };
-  
-  const handleQuickNavigation = (path: string) => {
-    navigate(path);
-  };
 
   return (
     <Layout>
@@ -84,6 +80,13 @@ const Index = () => {
         <header className="bg-white p-4 flex justify-between items-center shadow-sm">
           <h1 className="text-2xl font-bold font-montserrat text-chef-primary">Chef Sezar</h1>
         </header>
+        
+        {/* AI Explanation Banner */}
+        <div className="bg-gradient-to-r from-chef-primary/10 to-chef-secondary/10 p-4 mb-2">
+          <p className="text-center text-sm">
+            This page uses AI to find perfect recipes for you. Select categories, ingredients, and filters, then click "Find Recipes" to discover AI-curated dishes.
+          </p>
+        </div>
         
         {/* Category Selection */}
         <CategorySelection 
@@ -128,41 +131,6 @@ const Index = () => {
             <FileText size={18} />
             <span>Share Your Culinary Creation</span>
           </Button>
-          
-          {/* Quick Access Links - Favorites, History, Global */}
-          <div className="grid grid-cols-3 gap-3">
-            <Button
-              variant="outline"
-              className="flex flex-col items-center justify-center p-3 h-auto bg-white hover:bg-gray-50"
-              onClick={() => handleQuickNavigation('/profile')}
-            >
-              <span className="text-lg mb-1">⭐</span>
-              <span className="text-xs">Favorites</span>
-            </Button>
-            
-            <Button
-              variant="outline" 
-              className="flex flex-col items-center justify-center p-3 h-auto bg-white hover:bg-gray-50"
-              onClick={() => handleQuickNavigation('/profile')}
-            >
-              <span className="text-lg mb-1">🕒</span>
-              <span className="text-xs">History</span>
-            </Button>
-            
-            <Button
-              variant="outline"
-              className="flex flex-col items-center justify-center p-3 h-auto bg-white hover:bg-gray-50"
-              onClick={() => handleQuickNavigation('/global')}
-            >
-              <span className="text-lg mb-1">🌍</span>
-              <span className="text-xs">Global</span>
-            </Button>
-          </div>
-        </div>
-
-        {/* Quick Access Bar - moved to bottom */}
-        <div className="mt-4">
-          <QuickAccessBar />
         </div>
       </div>
     </Layout>

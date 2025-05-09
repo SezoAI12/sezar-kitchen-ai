@@ -6,6 +6,40 @@ import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { useToast } from '@/components/ui/use-toast';
 
+// Define translations for UI elements
+const translations = {
+  en: {
+    pageTitle: "Choose Your Language",
+    selectPrompt: "Select your preferred language",
+    continueButton: "Continue",
+    languageSelected: "Language set to",
+  },
+  ar: {
+    pageTitle: "اختر لغتك",
+    selectPrompt: "اختر لغتك المفضلة",
+    continueButton: "استمرار",
+    languageSelected: "تم تعيين اللغة إلى",
+  },
+  es: {
+    pageTitle: "Elige tu idioma",
+    selectPrompt: "Selecciona tu idioma preferido",
+    continueButton: "Continuar",
+    languageSelected: "Idioma establecido en",
+  },
+  fr: {
+    pageTitle: "Choisissez votre langue",
+    selectPrompt: "Sélectionnez votre langue préférée",
+    continueButton: "Continuer",
+    languageSelected: "Langue définie sur",
+  },
+  de: {
+    pageTitle: "Wähle deine Sprache",
+    selectPrompt: "Wähle deine bevorzugte Sprache",
+    continueButton: "Weiter",
+    languageSelected: "Sprache eingestellt auf",
+  },
+};
+
 const languages = [
   { code: 'en', name: 'English', flag: '🇺🇸', direction: 'ltr' },
   { code: 'es', name: 'Español', flag: '🇪🇸', direction: 'ltr' },
@@ -27,6 +61,11 @@ const LanguageSelection = () => {
     return localStorage.getItem('preferredLanguage') || 'en';
   });
 
+  // Add translations object to window for global access
+  useEffect(() => {
+    window.translations = translations;
+  }, []);
+
   useEffect(() => {
     // Store the selected language in localStorage
     localStorage.setItem('preferredLanguage', selectedLanguage);
@@ -41,10 +80,29 @@ const LanguageSelection = () => {
       if (selectedLang.direction === 'rtl') {
         document.documentElement.classList.add('rtl');
         document.body.classList.add('font-arabic');
+        
+        // Add Arabic font if it's Arabic
+        if (selectedLang.code === 'ar') {
+          // Add Arabic font link if not already present
+          if (!document.getElementById('arabic-font')) {
+            const link = document.createElement('link');
+            link.id = 'arabic-font';
+            link.rel = 'stylesheet';
+            link.href = 'https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap';
+            document.head.appendChild(link);
+            
+            // Add Arabic font to body
+            document.body.style.fontFamily = "'Tajawal', sans-serif";
+          }
+        }
       } else {
         document.documentElement.classList.remove('rtl');
         document.body.classList.remove('font-arabic');
+        document.body.style.fontFamily = '';
       }
+      
+      // Force event to notify app of language change
+      window.dispatchEvent(new Event('languagechange'));
     }
   }, [selectedLanguage]);
 
@@ -56,9 +114,11 @@ const LanguageSelection = () => {
     // Find the selected language object
     const language = languages.find(lang => lang.code === selectedLanguage);
     
+    const currentLang = selectedLanguage as keyof typeof translations;
+    
     toast({
-      title: "Language selected",
-      description: `Language set to ${language?.name}`
+      title: translations[currentLang]?.languageSelected || "Language selected",
+      description: `${language?.name}`
     });
     
     // Check if we're coming from a login flow or just changing language
@@ -70,21 +130,24 @@ const LanguageSelection = () => {
     }
   };
 
+  // Get translations based on selected language
+  const t = translations[selectedLanguage as keyof typeof translations] || translations.en;
+
   return (
-    <div className="min-h-screen bg-chef-light-gray flex flex-col">
+    <div className={`min-h-screen bg-chef-light-gray flex flex-col ${selectedLanguage === 'ar' ? 'rtl' : 'ltr'}`}>
       <div className="bg-white p-4 border-b">
         <div className="flex items-center">
           <button onClick={() => navigate(-1)} className="mr-2">
             <ChevronLeft size={24} />
           </button>
-          <h1 className="text-2xl font-bold">Choose Your Language</h1>
+          <h1 className="text-2xl font-bold">{t.pageTitle}</h1>
         </div>
       </div>
       
       <div className="flex-1 flex flex-col justify-center items-center p-6">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
-            <p className="text-chef-medium-gray">Select your preferred language</p>
+            <p className="text-chef-medium-gray">{t.selectPrompt}</p>
           </div>
           
           <div className="bg-white rounded-lg shadow-sm p-4">
@@ -118,7 +181,7 @@ const LanguageSelection = () => {
             onClick={handleContinue}
             className="w-full mt-6 bg-chef-primary hover:bg-chef-primary/90 py-6"
           >
-            Continue
+            {t.continueButton}
           </Button>
         </div>
       </div>

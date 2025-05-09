@@ -7,6 +7,7 @@ import SubcategorySelection from '../components/SubcategorySelection';
 import FilterSystem, { FilterOptions } from '../components/FilterSystem';
 import FindRecipesButton from '../components/FindRecipesButton';
 import RecipeCard, { Recipe } from '../components/RecipeCard';
+import { Globe } from 'lucide-react';
 
 const Global = () => {
   const { toast } = useToast();
@@ -29,7 +30,7 @@ const Global = () => {
     setFilterOptions(filters);
   };
   
-  // Mock function to simulate browsing global recipes
+  // Function to browse global recipes
   const handleFindRecipes = () => {
     if (!selectedCategory) {
       toast({
@@ -105,6 +106,14 @@ const Global = () => {
           <h1 className="text-2xl font-bold font-montserrat text-chef-primary">Global Cuisine</h1>
         </header>
         
+        {/* Global Cuisine Explanation */}
+        <div className="bg-gradient-to-r from-chef-primary/10 to-chef-secondary/10 p-4 mb-2">
+          <p className="text-sm flex items-center gap-2">
+            <Globe className="text-chef-primary" size={18} />
+            <span>Browse our global recipe database by country, dish type, and dietary preferences.</span>
+          </p>
+        </div>
+        
         {/* Category Selection */}
         <CategorySelection 
           onCategorySelect={handleCategorySelect} 
@@ -142,10 +151,12 @@ const Global = () => {
         )}
         
         {/* Browse Recipes Button */}
-        <FindRecipesButton 
-          onClick={handleFindRecipes} 
-          isLoading={isLoading} 
-        />
+        <div className="px-4 py-3">
+          <FindRecipesButton 
+            onClick={handleFindRecipes} 
+            isLoading={isLoading} 
+          />
+        </div>
       </div>
     </Layout>
   );
