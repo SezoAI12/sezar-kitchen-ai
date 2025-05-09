@@ -21,6 +21,8 @@ import Payment from "./pages/Payment";
 import RecipeSubmission from "./pages/RecipeSubmission";
 import Settings from "./pages/Settings";
 import AdminPanel from "./pages/AdminPanel";
+import Favorites from "./pages/Favorites";
+import History from "./pages/History";
 import { useUsageTracker } from "./services/UsageTracker";
 
 // Create a context for the usage tracker
@@ -67,6 +69,10 @@ const App = () => {
               {/* Premium Features */}
               <Route path="/meal-planning" element={<MealPlanning />} />
               <Route path="/shopping-list" element={<ShoppingList />} />
+              
+              {/* Personal Collection Routes */}
+              <Route path="/favorites" element={<Favorites />} />
+              <Route path="/history" element={<History />} />
               
               {/* Subscription and Payment */}
               <Route path="/subscription" element={<Subscription />} />

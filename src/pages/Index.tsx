@@ -6,16 +6,27 @@ import SubcategorySelection from '../components/SubcategorySelection';
 import IngredientSelector from '../components/IngredientSelector';
 import FilterSystem, { FilterOptions } from '../components/FilterSystem';
 import QuickAccessBar from '../components/QuickAccessBar';
-import RecipeCard from '../components/RecipeCard';
 import FindRecipesButton from '../components/FindRecipesButton';
 import { Button } from '@/components/ui/button';
 import { FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/components/ui/use-toast';
 
 type Ingredient = {
   id: string;
   name: string;
   image: string;
+};
+
+// Define the Recipe type to match what RecipeCard expects
+type Recipe = {
+  id: string;
+  title: string;
+  image: string;
+  time: string;
+  difficulty: 'easy' | 'medium' | 'hard';
+  cuisine: string;
+  servings: number;
 };
 
 const Index = () => {
@@ -26,6 +37,7 @@ const Index = () => {
   const [filterOptions, setFilterOptions] = useState<FilterOptions>({});
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const handleCategorySelect = (category: Category) => {
     setSelectedCategory(category);
@@ -44,10 +56,6 @@ const Index = () => {
     setFilterOptions(filters);
   };
 
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-  };
-
   const handleCreateRecipe = () => {
     navigate('/recipe/submit');
   };
@@ -57,48 +65,17 @@ const Index = () => {
     // Simulate API call
     setTimeout(() => {
       setIsLoading(false);
+      toast({
+        title: "Recipes found",
+        description: "Check your favorites for personalized recipe recommendations"
+      });
+      navigate('/global');
     }, 1500);
   };
-
-  // Sample recipe data for demonstration
-  const recipes = [
-    {
-      id: '1',
-      title: 'Spaghetti Carbonara',
-      image: 'https://images.unsplash.com/photo-1607305387299-a3d9611cd469?auto=format&fit=crop&w=400&q=80',
-      time: '35 min',
-      difficulty: 'medium' as const,
-      cuisine: 'italian',
-      servings: 4,
-    },
-    {
-      id: '2',
-      title: 'Chicken Stir-Fry',
-      image: 'https://images.unsplash.com/photo-1546793665-490e79690e32?auto=format&fit=crop&w=400&q=80',
-      time: '35 min',
-      difficulty: 'easy' as const,
-      cuisine: 'chinese',
-      servings: 3,
-    },
-    {
-      id: '3',
-      title: 'Mushroom Risotto',
-      image: 'https://images.unsplash.com/photo-1518675215778-45c40942617a?auto=format&fit=crop&w=400&q=80',
-      time: '50 min',
-      difficulty: 'medium' as const,
-      cuisine: 'italian',
-      servings: 4,
-    },
-    {
-      id: '4',
-      title: 'Vegan Chili',
-      image: 'https://images.unsplash.com/photo-1512621776951-a57141f2e3bb?auto=format&fit=crop&w=400&q=80',
-      time: '55 min',
-      difficulty: 'easy' as const,
-      cuisine: 'american',
-      servings: 6,
-    },
-  ];
+  
+  const handleQuickNavigation = (path: string) => {
+    navigate(path);
+  };
 
   return (
     <Layout>
@@ -135,35 +112,58 @@ const Index = () => {
           currentFilters={filterOptions}
         />
         
-        {/* Find Recipes Button */}
-        <FindRecipesButton 
-          onClick={handleFindRecipes}
-          isLoading={isLoading}
-        />
-        
-        {/* Share Recipe Button - Moved below Find Recipes button */}
-        <div className="px-4 py-3 bg-white border-b">
+        {/* Action Buttons Section */}
+        <div className="px-4 py-3 space-y-4">
+          {/* Find Recipes Button */}
+          <FindRecipesButton 
+            onClick={handleFindRecipes}
+            isLoading={isLoading}
+          />
+          
+          {/* Share Recipe Button */}
           <Button 
             onClick={handleCreateRecipe}
-            className="w-full flex items-center justify-center gap-2 bg-chef-secondary hover:bg-chef-secondary/90"
+            className="w-full flex items-center justify-center gap-2 bg-chef-secondary hover:bg-chef-secondary/90 py-4 shadow-md"
           >
             <FileText size={18} />
             <span>Share Your Culinary Creation</span>
           </Button>
+          
+          {/* Quick Access Links - Favorites, History, Global */}
+          <div className="grid grid-cols-3 gap-3">
+            <Button
+              variant="outline"
+              className="flex flex-col items-center justify-center p-3 h-auto bg-white hover:bg-gray-50"
+              onClick={() => handleQuickNavigation('/profile')}
+            >
+              <span className="text-lg mb-1">⭐</span>
+              <span className="text-xs">Favorites</span>
+            </Button>
+            
+            <Button
+              variant="outline" 
+              className="flex flex-col items-center justify-center p-3 h-auto bg-white hover:bg-gray-50"
+              onClick={() => handleQuickNavigation('/profile')}
+            >
+              <span className="text-lg mb-1">🕒</span>
+              <span className="text-xs">History</span>
+            </Button>
+            
+            <Button
+              variant="outline"
+              className="flex flex-col items-center justify-center p-3 h-auto bg-white hover:bg-gray-50"
+              onClick={() => handleQuickNavigation('/global')}
+            >
+              <span className="text-lg mb-1">🌍</span>
+              <span className="text-xs">Global</span>
+            </Button>
+          </div>
         </div>
 
-        {/* Quick Access Bar - Moved below Share Recipe button */}
-        <QuickAccessBar />
-        
-        {/* Recipe Results */}
-        <section className="px-4 py-6">
-          <h2 className="text-xl font-bold mb-4">Recipes For You</h2>
-          <div className="grid grid-cols-2 gap-4">
-            {recipes.map(recipe => (
-              <RecipeCard key={recipe.id} recipe={recipe} />
-            ))}
-          </div>
-        </section>
+        {/* Quick Access Bar - moved to bottom */}
+        <div className="mt-4">
+          <QuickAccessBar />
+        </div>
       </div>
     </Layout>
   );

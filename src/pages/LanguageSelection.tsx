@@ -36,6 +36,15 @@ const LanguageSelection = () => {
     if (selectedLang) {
       document.documentElement.dir = selectedLang.direction;
       document.documentElement.lang = selectedLang.code;
+      
+      // Add appropriate font classes for RTL languages
+      if (selectedLang.direction === 'rtl') {
+        document.documentElement.classList.add('rtl');
+        document.body.classList.add('font-arabic');
+      } else {
+        document.documentElement.classList.remove('rtl');
+        document.body.classList.remove('font-arabic');
+      }
     }
   }, [selectedLanguage]);
 

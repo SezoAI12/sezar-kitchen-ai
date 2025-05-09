@@ -1,5 +1,5 @@
 
-import { ReactNode } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
   Home, 
@@ -16,13 +16,21 @@ type LayoutProps = {
 const Layout = ({ children }: LayoutProps) => {
   const location = useLocation();
   const isMobile = useIsMobile();
+  const [direction, setDirection] = useState('ltr');
+  
+  useEffect(() => {
+    // Get the stored language or default to 'en'
+    const preferredLanguage = localStorage.getItem('preferredLanguage') || 'en';
+    const isRtl = preferredLanguage === 'ar';
+    setDirection(isRtl ? 'rtl' : 'ltr');
+  }, []);
   
   const isActive = (path: string) => {
     return location.pathname === path;
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-chef-light-gray">
+    <div className={`flex flex-col min-h-screen bg-chef-light-gray ${direction === 'rtl' ? 'rtl' : ''}`}>
       <main className="flex-1 pb-16">
         {children}
       </main>

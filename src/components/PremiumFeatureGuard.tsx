@@ -1,123 +1,72 @@
-import { ReactNode, useState } from 'react';
+
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LockIcon, Crown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-  DialogClose,
-} from "@/components/ui/dialog";
+import { Lock, Star } from 'lucide-react';
 
-type PremiumFeatureGuardProps = {
-  children: ReactNode;
+interface PremiumFeatureGuardProps {
+  children: React.ReactNode;
   featureName: string;
-  requireAuth?: boolean;
-};
+}
 
-const PremiumFeatureGuard = ({ 
-  children, 
-  featureName, 
-  requireAuth = true 
-}: PremiumFeatureGuardProps) => {
+const PremiumFeatureGuard = ({ children, featureName }: PremiumFeatureGuardProps) => {
+  const [isPremium] = useState(false); // Replace with actual authentication check
   const navigate = useNavigate();
-  const [showPremiumDialog, setShowPremiumDialog] = useState(false);
-  
-  // Mock user state - in a real app, this would come from authentication context
-  const isAuthenticated = true; // This would be the actual auth state
-  const isPremiumUser = false; // This would be the actual premium subscription state
-  
-  const handleFeatureAccess = () => {
-    if (!isAuthenticated && requireAuth) {
-      navigate('/login');
-      return;
-    }
-    
-    if (!isPremiumUser) {
-      setShowPremiumDialog(true);
-      return;
-    }
-    
-    // If user is authenticated and has premium access, render the children
-  };
-  
-  const handleNavigateToSubscription = () => {
-    setShowPremiumDialog(false);
-    navigate('/subscription');
-  };
-  
-  // If user has premium access, render the children directly
-  if (isPremiumUser) {
+
+  if (isPremium) {
     return <>{children}</>;
   }
 
-  // Otherwise, show premium prompt when trying to access the feature
   return (
-    <>
-      <div className="relative" onClick={handleFeatureAccess}>
-        <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center rounded-md z-10">
-          <div className="bg-white p-2 rounded-full">
-            <LockIcon className="text-chef-primary" size={24} />
+    <div className="min-h-screen bg-chef-light-gray flex flex-col items-center justify-center p-6">
+      <div className="bg-white rounded-lg shadow-md p-8 max-w-md w-full text-center">
+        <div className="mb-6 bg-amber-100 p-4 rounded-full w-16 h-16 flex items-center justify-center mx-auto">
+          <Lock size={32} className="text-amber-600" />
+        </div>
+        
+        <h2 className="text-2xl font-bold mb-2">Premium Feature</h2>
+        <p className="text-gray-600 mb-6">
+          {featureName} is available exclusively for our premium members.
+          Upgrade now to unlock this and many other great features!
+        </p>
+        
+        <div className="bg-gradient-to-r from-amber-100 to-amber-50 p-4 rounded-lg mb-6">
+          <div className="flex items-center mb-2">
+            <Star size={16} className="text-amber-500 mr-2" />
+            <span className="font-medium">Meal Planning</span>
+          </div>
+          <div className="flex items-center mb-2">
+            <Star size={16} className="text-amber-500 mr-2" />
+            <span className="font-medium">Shopping List</span>
+          </div>
+          <div className="flex items-center mb-2">
+            <Star size={16} className="text-amber-500 mr-2" />
+            <span className="font-medium">Cooking Instructions</span>
+          </div>
+          <div className="flex items-center">
+            <Star size={16} className="text-amber-500 mr-2" />
+            <span className="font-medium">Nutrition Analysis</span>
           </div>
         </div>
-        {children}
+        
+        <div className="space-y-3">
+          <Button 
+            className="w-full bg-gradient-to-r from-chef-primary to-chef-primary/90"
+            onClick={() => navigate('/subscription')}
+          >
+            Upgrade to Premium
+          </Button>
+          
+          <Button 
+            variant="outline"
+            className="w-full"
+            onClick={() => navigate(-1)}
+          >
+            Go Back
+          </Button>
+        </div>
       </div>
-
-      <Dialog open={showPremiumDialog} onOpenChange={setShowPremiumDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Crown className="text-yellow-400 fill-yellow-400" size={20} />
-              <span>Premium Feature</span>
-            </DialogTitle>
-            <DialogDescription>
-              {featureName} is a premium feature. Upgrade to Chef Sezar Premium to unlock this and many other exclusive features.
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="bg-chef-light-gray p-4 rounded-md my-4">
-            <h4 className="font-medium mb-2">Premium Benefits:</h4>
-            <ul className="space-y-2 text-sm">
-              <li className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-chef-primary rounded-full"></span>
-                <span>Meal Planning</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-chef-primary rounded-full"></span>
-                <span>Shopping List</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-chef-primary rounded-full"></span>
-                <span>Cooking Instructions</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-chef-primary rounded-full"></span>
-                <span>Nutrition Information</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-chef-primary rounded-full"></span>
-                <span>Ad-free experience</span>
-              </li>
-            </ul>
-          </div>
-          
-          <DialogFooter className="flex-col sm:flex-col gap-2">
-            <Button 
-              onClick={handleNavigateToSubscription} 
-              className="w-full bg-chef-primary hover:bg-chef-primary/90"
-            >
-              View Premium Plans
-            </Button>
-            <DialogClose asChild>
-              <Button variant="outline" className="w-full">Maybe Later</Button>
-            </DialogClose>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </>
+    </div>
   );
 };
 

@@ -1,121 +1,145 @@
 
 import { useState, useEffect } from 'react';
 
-export type UsageRecord = {
-  id: string;
-  timestamp: number;
-  type: 'recipe' | 'feature';
-  itemId: string;
-  itemName: string;
+export type RecipeUsage = {
+  recipeId: string;
+  title: string;
+  lastViewed: Date;
+  viewCount: number;
+  favorite: boolean;
+  cooked: boolean;
+  cookCount: number;
 };
 
-const STORAGE_KEY = 'chef_sezar_usage_history';
-
 export const useUsageTracker = () => {
-  const [usageHistory, setUsageHistory] = useState<UsageRecord[]>([]);
-
-  // Load usage history from localStorage on mount
+  const [recipeHistory, setRecipeHistory] = useState<RecipeUsage[]>([]);
+  
   useEffect(() => {
-    try {
-      const storedHistory = localStorage.getItem(STORAGE_KEY);
-      if (storedHistory) {
-        setUsageHistory(JSON.parse(storedHistory));
+    // Load recipe history from localStorage on component mount
+    const savedHistory = localStorage.getItem('recipeHistory');
+    if (savedHistory) {
+      try {
+        // Parse dates properly
+        const parsed = JSON.parse(savedHistory, (key, value) => {
+          if (key === 'lastViewed') return new Date(value);
+          return value;
+        });
+        setRecipeHistory(parsed);
+      } catch (error) {
+        console.error('Error loading recipe history:', error);
+        // Initialize with empty array if parsing fails
+        setRecipeHistory([]);
       }
-    } catch (error) {
-      console.error('Failed to load usage history:', error);
     }
   }, []);
-
-  // Save usage history to localStorage whenever it changes
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(usageHistory));
-    } catch (error) {
-      console.error('Failed to save usage history:', error);
+  
+  const saveHistory = (updatedHistory: RecipeUsage[]) => {
+    setRecipeHistory(updatedHistory);
+    localStorage.setItem('recipeHistory', JSON.stringify(updatedHistory));
+  };
+  
+  const trackRecipeView = (recipeId: string, title: string) => {
+    const now = new Date();
+    const existingIndex = recipeHistory.findIndex(item => item.recipeId === recipeId);
+    
+    if (existingIndex >= 0) {
+      // Update existing recipe
+      const updatedHistory = [...recipeHistory];
+      updatedHistory[existingIndex] = {
+        ...updatedHistory[existingIndex],
+        lastViewed: now,
+        viewCount: updatedHistory[existingIndex].viewCount + 1
+      };
+      saveHistory(updatedHistory);
+    } else {
+      // Add new recipe
+      const newHistory = [
+        ...recipeHistory,
+        {
+          recipeId,
+          title,
+          lastViewed: now,
+          viewCount: 1,
+          favorite: false,
+          cooked: false,
+          cookCount: 0
+        }
+      ];
+      saveHistory(newHistory);
     }
-  }, [usageHistory]);
-
-  /**
-   * Track recipe view
-   */
-  const trackRecipeView = (recipeId: string, recipeName: string) => {
-    const newRecord: UsageRecord = {
-      id: `recipe_view_${Date.now()}`,
-      timestamp: Date.now(),
-      type: 'recipe',
-      itemId: recipeId,
-      itemName: recipeName
-    };
-
-    setUsageHistory(prev => [newRecord, ...prev]);
   };
-
-  /**
-   * Track feature usage
-   */
-  const trackFeatureUse = (featureId: string, featureName: string) => {
-    const newRecord: UsageRecord = {
-      id: `feature_use_${Date.now()}`,
-      timestamp: Date.now(),
-      type: 'feature',
-      itemId: featureId,
-      itemName: featureName
-    };
-
-    setUsageHistory(prev => [newRecord, ...prev]);
+  
+  const toggleFavorite = (recipeId: string) => {
+    const existingIndex = recipeHistory.findIndex(item => item.recipeId === recipeId);
+    
+    if (existingIndex >= 0) {
+      // Update existing recipe
+      const updatedHistory = [...recipeHistory];
+      updatedHistory[existingIndex] = {
+        ...updatedHistory[existingIndex],
+        favorite: !updatedHistory[existingIndex].favorite
+      };
+      saveHistory(updatedHistory);
+      return updatedHistory[existingIndex].favorite;
+    }
+    return false;
   };
-
-  /**
-   * Get usage statistics
-   */
-  const getUsageStats = () => {
-    const recipeViews = usageHistory.filter(record => record.type === 'recipe');
-    const featureUses = usageHistory.filter(record => record.type === 'feature');
-
-    const uniqueRecipes = new Set(recipeViews.map(record => record.itemId));
-    const uniqueFeatures = new Set(featureUses.map(record => record.itemId));
-
-    return {
-      totalRecipeViews: recipeViews.length,
-      uniqueRecipesViewed: uniqueRecipes.size,
-      totalFeatureUses: featureUses.length,
-      uniqueFeaturesUsed: uniqueFeatures.size,
-      mostViewedRecipes: getMostFrequent(recipeViews, 5),
-      mostUsedFeatures: getMostFrequent(featureUses, 5)
-    };
+  
+  const trackRecipeCooked = (recipeId: string, title: string) => {
+    const now = new Date();
+    const existingIndex = recipeHistory.findIndex(item => item.recipeId === recipeId);
+    
+    if (existingIndex >= 0) {
+      // Update existing recipe
+      const updatedHistory = [...recipeHistory];
+      updatedHistory[existingIndex] = {
+        ...updatedHistory[existingIndex],
+        lastViewed: now,
+        cooked: true,
+        cookCount: updatedHistory[existingIndex].cookCount + 1
+      };
+      saveHistory(updatedHistory);
+    } else {
+      // Add new recipe
+      const newHistory = [
+        ...recipeHistory,
+        {
+          recipeId,
+          title,
+          lastViewed: now,
+          viewCount: 1,
+          favorite: false,
+          cooked: true,
+          cookCount: 1
+        }
+      ];
+      saveHistory(newHistory);
+    }
   };
-
-  /**
-   * Clear usage history
-   */
-  const clearHistory = () => {
-    setUsageHistory([]);
-    localStorage.removeItem(STORAGE_KEY);
+  
+  const getFavorites = () => {
+    return recipeHistory.filter(item => item.favorite);
   };
-
-  /**
-   * Helper to get most frequently used items
-   */
-  const getMostFrequent = (records: UsageRecord[], limit: number) => {
-    const counts: Record<string, { id: string; name: string; count: number }> = {};
-
-    records.forEach(record => {
-      if (!counts[record.itemId]) {
-        counts[record.itemId] = { id: record.itemId, name: record.itemName, count: 0 };
-      }
-      counts[record.itemId].count++;
-    });
-
-    return Object.values(counts)
-      .sort((a, b) => b.count - a.count)
-      .slice(0, limit);
+  
+  const getHistory = () => {
+    // Sort by most recently viewed
+    return [...recipeHistory].sort((a, b) => 
+      b.lastViewed.getTime() - a.lastViewed.getTime()
+    );
   };
-
+  
+  const getRecentlyCooked = () => {
+    return recipeHistory
+      .filter(item => item.cooked)
+      .sort((a, b) => b.lastViewed.getTime() - a.lastViewed.getTime());
+  };
+  
   return {
-    usageHistory,
     trackRecipeView,
-    trackFeatureUse,
-    getUsageStats,
-    clearHistory
+    toggleFavorite,
+    trackRecipeCooked,
+    getFavorites,
+    getHistory,
+    getRecentlyCooked
   };
 };

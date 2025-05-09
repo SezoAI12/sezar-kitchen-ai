@@ -1,5 +1,5 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;500;600&family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -109,6 +109,16 @@
   button, .btn {
     @apply font-montserrat font-semibold;
   }
+  
+  /* RTL Support */
+  .rtl {
+    direction: rtl;
+    text-align: right;
+  }
+  
+  .rtl .font-arabic {
+    font-family: 'Noto Sans Arabic', sans-serif;
+  }
 }
 
 @layer components {
@@ -142,5 +152,22 @@
 
   .difficulty-hard {
     @apply bg-red-500;
+  }
+  
+  /* Professional Design Improvements */
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+  }
+  
+  .gradient-primary {
+    @apply bg-gradient-to-r from-chef-primary to-chef-primary/80;
+  }
+  
+  .gradient-secondary {
+    @apply bg-gradient-to-r from-chef-secondary to-chef-secondary/80;
+  }
+  
+  .glass-card {
+    @apply bg-white/80 backdrop-blur-sm border border-white/20 shadow-sm;
   }
 }
