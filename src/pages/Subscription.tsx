@@ -6,9 +6,11 @@ import { Button } from '@/components/ui/button';
 import { Check, ChevronLeft, Star } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { useToast } from '@/components/ui/use-toast';
 
 const Subscription = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
   
   const plans = [
@@ -60,8 +62,20 @@ const Subscription = () => {
   ];
   
   const handlePlanSelect = (planId: string) => {
+    if (planId !== 'free') {
+      // Set premium status in localStorage
+      localStorage.setItem('premiumStatus', 'active');
+      
+      // Dispatch a storage event to notify other components
+      window.dispatchEvent(new Event('storage'));
+      
+      toast({
+        title: "Premium Activated",
+        description: "You now have access to all premium features!"
+      });
+    }
+    
     navigate('/payment');
-    // In a real app, you would store the selected plan
   };
   
   const formatPrice = (price: number) => {

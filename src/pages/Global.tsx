@@ -7,7 +7,8 @@ import SubcategorySelection from '../components/SubcategorySelection';
 import FilterSystem, { FilterOptions } from '../components/FilterSystem';
 import FindRecipesButton from '../components/FindRecipesButton';
 import RecipeCard, { Recipe } from '../components/RecipeCard';
-import { Globe } from 'lucide-react';
+import { Globe, Filter } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const Global = () => {
   const { toast } = useToast();
@@ -16,6 +17,7 @@ const Global = () => {
   const [filterOptions, setFilterOptions] = useState<FilterOptions>({});
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
   
   const handleCategorySelect = (category: Category) => {
     setSelectedCategory(category);
@@ -104,6 +106,14 @@ const Global = () => {
         {/* Header Section */}
         <header className="bg-white p-4 flex justify-between items-center shadow-sm">
           <h1 className="text-2xl font-bold font-montserrat text-chef-primary">Global Cuisine</h1>
+          <Button 
+            variant="outline" 
+            size="icon"
+            onClick={() => setShowFilters(!showFilters)} 
+            className={showFilters ? "bg-chef-primary/10" : ""}
+          >
+            <Filter size={20} />
+          </Button>
         </header>
         
         {/* Global Cuisine Explanation */}
@@ -130,10 +140,13 @@ const Global = () => {
         )}
         
         {/* Filter Section */}
-        <FilterSystem 
-          onFilterChange={handleFilterChange} 
-          currentFilters={filterOptions} 
-        />
+        {showFilters && (
+          <FilterSystem 
+            onFilterChange={handleFilterChange} 
+            currentFilters={filterOptions} 
+            useButtonStyles={true}
+          />
+        )}
         
         {/* Recipe Results - Show only if recipes exist */}
         {recipes.length > 0 && (
@@ -155,6 +168,7 @@ const Global = () => {
           <FindRecipesButton 
             onClick={handleFindRecipes} 
             isLoading={isLoading} 
+            text="Browse Global Recipes"
           />
         </div>
       </div>

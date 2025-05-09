@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import { 
   Settings, 
@@ -23,6 +23,21 @@ const Profile = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
+  const [isPremium, setIsPremium] = useState(() => {
+    return localStorage.getItem('premiumStatus') === 'active';
+  });
+  
+  useEffect(() => {
+    const checkPremiumStatus = () => {
+      setIsPremium(localStorage.getItem('premiumStatus') === 'active');
+    };
+    
+    window.addEventListener('storage', checkPremiumStatus);
+    
+    return () => {
+      window.removeEventListener('storage', checkPremiumStatus);
+    };
+  }, []);
   
   const handleLogout = () => {
     // Here you would handle the actual logout logic
@@ -31,6 +46,15 @@ const Profile = () => {
       description: "You have been successfully logged out."
     });
     navigate('/login');
+  };
+
+  const activatePremium = () => {
+    localStorage.setItem('premiumStatus', 'active');
+    setIsPremium(true);
+    toast({
+      title: "Premium Activated",
+      description: "You now have access to all premium features!"
+    });
   };
   
   return (
@@ -72,19 +96,23 @@ const Profile = () => {
         {/* Subscription Card */}
         <div className="mt-4 mx-4 p-4 bg-gradient-to-r from-chef-primary to-chef-primary/80 text-white rounded-lg shadow">
           <div className="flex justify-between items-center">
-            <h3 className="font-semibold">Free Plan</h3>
-            <Button 
-              variant="secondary" 
-              size="sm" 
-              className="text-chef-primary"
-              onClick={() => navigate('/subscription')}
-            >
-              Upgrade
-            </Button>
+            <h3 className="font-semibold">{isPremium ? 'Premium Plan' : 'Free Plan'}</h3>
+            {!isPremium && (
+              <Button 
+                variant="secondary" 
+                size="sm" 
+                className="text-chef-primary"
+                onClick={activatePremium}
+              >
+                Activate Premium
+              </Button>
+            )}
           </div>
           
           <p className="text-sm mt-2 opacity-90">
-            Unlock premium features like detailed nutrition analysis, meal planning, and more!
+            {isPremium 
+              ? "You have access to all premium features! Enjoy the full experience." 
+              : "Unlock premium features like detailed nutrition analysis, meal planning, and more!"}
           </p>
         </div>
         
@@ -95,19 +123,19 @@ const Profile = () => {
           <div className="grid grid-cols-2 gap-3">
             <Button 
               variant="outline" 
-              className="h-auto py-4 flex flex-col items-center"
+              className={`h-auto py-4 flex flex-col items-center ${!isPremium && 'opacity-60'}`}
               onClick={() => navigate('/meal-planning')}
             >
-              <Calendar size={24} className="mb-2 text-chef-primary" />
+              <Calendar size={24} className={`mb-2 ${isPremium ? 'text-chef-primary' : 'text-chef-medium-gray'}`} />
               <span>Meal Planning</span>
             </Button>
             
             <Button 
               variant="outline"
-              className="h-auto py-4 flex flex-col items-center"
+              className={`h-auto py-4 flex flex-col items-center ${!isPremium && 'opacity-60'}`}
               onClick={() => navigate('/shopping-list')}
             >
-              <ShoppingBasket size={24} className="mb-2 text-chef-accent" />
+              <ShoppingBasket size={24} className={`mb-2 ${isPremium ? 'text-chef-accent' : 'text-chef-medium-gray'}`} />
               <span>Shopping List</span>
             </Button>
           </div>
@@ -118,21 +146,29 @@ const Profile = () => {
           <h3 className="text-lg font-semibold mb-3">My Collections</h3>
           
           <div className="grid grid-cols-2 gap-3">
-            <div className="bg-chef-light-gray p-4 rounded-lg flex flex-col items-center">
+            <Button
+              variant="outline"
+              className="p-4 rounded-lg flex flex-col items-center h-auto"
+              onClick={() => navigate('/favorites')}
+            >
               <div className="bg-white p-3 rounded-full mb-2 text-chef-primary">
                 <Heart size={24} />
               </div>
               <h4 className="font-medium">Favorites</h4>
               <p className="text-sm text-chef-medium-gray">15 recipes</p>
-            </div>
+            </Button>
             
-            <div className="bg-chef-light-gray p-4 rounded-lg flex flex-col items-center">
+            <Button
+              variant="outline"
+              className="p-4 rounded-lg flex flex-col items-center h-auto"
+              onClick={() => navigate('/history')}
+            >
               <div className="bg-white p-3 rounded-full mb-2 text-chef-accent">
                 <Clock size={24} />
               </div>
               <h4 className="font-medium">History</h4>
               <p className="text-sm text-chef-medium-gray">8 recipes</p>
-            </div>
+            </Button>
           </div>
         </div>
         

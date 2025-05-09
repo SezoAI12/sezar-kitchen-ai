@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Lock, Star } from 'lucide-react';
@@ -10,8 +10,25 @@ interface PremiumFeatureGuardProps {
 }
 
 const PremiumFeatureGuard = ({ children, featureName }: PremiumFeatureGuardProps) => {
-  const [isPremium] = useState(false); // Replace with actual authentication check
+  const [isPremium, setIsPremium] = useState(() => {
+    // Check if user has premium status from localStorage
+    return localStorage.getItem('premiumStatus') === 'active';
+  });
+  
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Update premium status if it changes
+    const checkPremiumStatus = () => {
+      setIsPremium(localStorage.getItem('premiumStatus') === 'active');
+    };
+    
+    window.addEventListener('storage', checkPremiumStatus);
+    
+    return () => {
+      window.removeEventListener('storage', checkPremiumStatus);
+    };
+  }, []);
 
   if (isPremium) {
     return <>{children}</>;

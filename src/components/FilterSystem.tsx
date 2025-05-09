@@ -7,6 +7,7 @@ import {
   DialogHeader, 
   DialogTitle, 
   DialogTrigger,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -30,9 +31,10 @@ export type FilterOptions = {
 type FilterSystemProps = {
   onFilterChange: (filters: FilterOptions) => void;
   currentFilters: FilterOptions;
+  useButtonStyles?: boolean;
 };
 
-const FilterSystem = ({ onFilterChange, currentFilters }: FilterSystemProps) => {
+const FilterSystem = ({ onFilterChange, currentFilters, useButtonStyles = false }: FilterSystemProps) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [tempFilters, setTempFilters] = useState<FilterOptions>(currentFilters);
   
@@ -76,6 +78,18 @@ const FilterSystem = ({ onFilterChange, currentFilters }: FilterSystemProps) => 
     return Object.keys(currentFilters).length;
   };
 
+  const handleDietarySelect = (value: string) => {
+    setTempFilters({ ...tempFilters, dietary: value });
+  };
+
+  const handleCuisineSelect = (value: string) => {
+    setTempFilters({ ...tempFilters, cuisine: value });
+  };
+
+  const handleMealTypeSelect = (value: string) => {
+    setTempFilters({ ...tempFilters, mealType: value });
+  };
+
   return (
     <div className="px-4 py-3">
       <div className="flex justify-between items-center mb-3">
@@ -100,6 +114,9 @@ const FilterSystem = ({ onFilterChange, currentFilters }: FilterSystemProps) => 
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle>Filter Options</DialogTitle>
+              <DialogDescription>
+                Select your preferred filters to narrow down recipe results
+              </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
               {/* Difficulty Filter */}
@@ -129,70 +146,121 @@ const FilterSystem = ({ onFilterChange, currentFilters }: FilterSystemProps) => 
               {/* Dietary Filter */}
               <div className="space-y-2">
                 <h4 className="text-sm font-medium">Dietary Preferences</h4>
-                <Select 
-                  value={tempFilters.dietary} 
-                  onValueChange={(value) => setTempFilters({ ...tempFilters, dietary: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select dietary preference" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectLabel>Dietary Options</SelectLabel>
-                      {dietaryOptions.map((option) => (
-                        <SelectItem key={option} value={option.toLowerCase()}>
-                          {option}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
+                {useButtonStyles ? (
+                  <div className="flex flex-wrap gap-2">
+                    {dietaryOptions.map((option) => (
+                      <Button 
+                        key={option} 
+                        variant={tempFilters.dietary === option.toLowerCase() ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => handleDietarySelect(
+                          tempFilters.dietary === option.toLowerCase() ? "" : option.toLowerCase()
+                        )}
+                      >
+                        {option}
+                      </Button>
+                    ))}
+                  </div>
+                ) : (
+                  <Select 
+                    value={tempFilters.dietary} 
+                    onValueChange={(value) => setTempFilters({ ...tempFilters, dietary: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select dietary preference" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectLabel>Dietary Options</SelectLabel>
+                        {dietaryOptions.map((option) => (
+                          <SelectItem key={option} value={option.toLowerCase()}>
+                            {option}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                )}
               </div>
 
               {/* Cuisine Filter */}
               <div className="space-y-2">
                 <h4 className="text-sm font-medium">Cuisine</h4>
-                <Select 
-                  value={tempFilters.cuisine} 
-                  onValueChange={(value) => setTempFilters({ ...tempFilters, cuisine: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select cuisine" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectLabel>Cuisine Types</SelectLabel>
-                      {cuisines.map((cuisine) => (
-                        <SelectItem key={cuisine} value={cuisine.toLowerCase()}>
-                          {cuisine}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
+                {useButtonStyles ? (
+                  <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto">
+                    {cuisines.map((cuisine) => (
+                      <Button 
+                        key={cuisine} 
+                        variant={tempFilters.cuisine === cuisine.toLowerCase() ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => handleCuisineSelect(
+                          tempFilters.cuisine === cuisine.toLowerCase() ? "" : cuisine.toLowerCase()
+                        )}
+                      >
+                        {cuisine}
+                      </Button>
+                    ))}
+                  </div>
+                ) : (
+                  <Select 
+                    value={tempFilters.cuisine} 
+                    onValueChange={(value) => setTempFilters({ ...tempFilters, cuisine: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select cuisine" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectLabel>Cuisine Types</SelectLabel>
+                        {cuisines.map((cuisine) => (
+                          <SelectItem key={cuisine} value={cuisine.toLowerCase()}>
+                            {cuisine}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                )}
               </div>
 
               {/* Meal Type Filter */}
               <div className="space-y-2">
                 <h4 className="text-sm font-medium">Meal Type</h4>
-                <Select 
-                  value={tempFilters.mealType} 
-                  onValueChange={(value) => setTempFilters({ ...tempFilters, mealType: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select meal type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectLabel>Meal Types</SelectLabel>
-                      {mealTypes.map((type) => (
-                        <SelectItem key={type} value={type.toLowerCase()}>
-                          {type}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
+                {useButtonStyles ? (
+                  <div className="flex flex-wrap gap-2">
+                    {mealTypes.map((type) => (
+                      <Button 
+                        key={type} 
+                        variant={tempFilters.mealType === type.toLowerCase() ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => handleMealTypeSelect(
+                          tempFilters.mealType === type.toLowerCase() ? "" : type.toLowerCase()
+                        )}
+                      >
+                        {type}
+                      </Button>
+                    ))}
+                  </div>
+                ) : (
+                  <Select 
+                    value={tempFilters.mealType} 
+                    onValueChange={(value) => setTempFilters({ ...tempFilters, mealType: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select meal type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectLabel>Meal Types</SelectLabel>
+                        {mealTypes.map((type) => (
+                          <SelectItem key={type} value={type.toLowerCase()}>
+                            {type}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                )}
               </div>
 
               <div className="flex justify-between pt-4">

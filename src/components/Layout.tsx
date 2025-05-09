@@ -12,6 +12,7 @@ import {
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
+import { useDarkMode } from '@/hooks/use-dark-mode';
 
 type LayoutProps = {
   children: ReactNode;
@@ -21,10 +22,7 @@ const Layout = ({ children }: LayoutProps) => {
   const location = useLocation();
   const isMobile = useIsMobile();
   const [direction, setDirection] = useState('ltr');
-  const [darkMode, setDarkMode] = useState(() => {
-    // Check if user has previously set dark mode preference
-    return localStorage.getItem('darkMode') === 'true';
-  });
+  const { darkMode, toggleDarkMode } = useDarkMode();
   
   const { toast } = useToast();
   
@@ -34,22 +32,23 @@ const Layout = ({ children }: LayoutProps) => {
     const isRtl = preferredLanguage === 'ar';
     setDirection(isRtl ? 'rtl' : 'ltr');
     
-    // Apply dark mode
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
+    // Apply RTL to the document
+    document.documentElement.dir = isRtl ? 'rtl' : 'ltr';
+    
+    // Load appropriate font for Arabic
+    if (isRtl) {
+      document.documentElement.classList.add('font-arabic');
     } else {
-      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.remove('font-arabic');
     }
-  }, [darkMode]);
+  }, []);
 
-  const toggleDarkMode = () => {
-    const newDarkMode = !darkMode;
-    setDarkMode(newDarkMode);
-    localStorage.setItem('darkMode', String(newDarkMode));
+  const handleToggleDarkMode = () => {
+    toggleDarkMode();
     
     toast({
-      title: newDarkMode ? "Dark mode enabled" : "Light mode enabled",
-      description: newDarkMode ? "The app is now in dark mode" : "The app is now in light mode",
+      title: darkMode ? "Light mode enabled" : "Dark mode enabled",
+      description: darkMode ? "The app is now in light mode" : "The app is now in dark mode",
     });
   };
   
@@ -64,7 +63,7 @@ const Layout = ({ children }: LayoutProps) => {
         <Button 
           size="icon" 
           variant="outline" 
-          onClick={toggleDarkMode}
+          onClick={handleToggleDarkMode}
           className={`rounded-full ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'}`}
         >
           {darkMode ? <Sun size={18} /> : <Moon size={18} />}

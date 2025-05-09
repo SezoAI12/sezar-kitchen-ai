@@ -6,9 +6,10 @@ import { motion } from 'framer-motion';
 type FindRecipesButtonProps = {
   onClick: () => void;
   isLoading?: boolean;
+  text?: string;
 };
 
-const FindRecipesButton = ({ onClick, isLoading = false }: FindRecipesButtonProps) => {
+const FindRecipesButton = ({ onClick, isLoading = false, text = "Find a Recipe Using AI" }: FindRecipesButtonProps) => {
   return (
     <div className="py-3">
       <Button
@@ -29,7 +30,7 @@ const FindRecipesButton = ({ onClick, isLoading = false }: FindRecipesButtonProp
         ) : (
           <>
             <ChefHat size={24} className="transition-transform group-hover:animate-spin-slow" />
-            <span>Find Recipes</span>
+            <span>{text}</span>
           </>
         )}
       </Button>
