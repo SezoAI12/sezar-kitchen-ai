@@ -1,186 +1,348 @@
 
-import { useState } from 'react';
-import { useToast } from "@/components/ui/use-toast";
+import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
-import PantryAddForm from '../components/PantryAddForm';
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Search, Plus, ShoppingCart, Zap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-
-type PantryItem = {
-  id: string;
-  name: string;
-  category: string;
-  quantity: string;
-  expiry?: string;
-  isLowStock: boolean;
-};
+import { PlusCircle, Search, ChevronDown, ChevronUp, Trash2, Plus, ChefHat } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { useToast } from '@/components/ui/use-toast';
+import PantryAddForm, { PantryItem } from '../components/PantryAddForm';
+import FindRecipesButton from '../components/FindRecipesButton';
 
 const Pantry = () => {
-  const { toast } = useToast();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
-  const [isAddingItem, setIsAddingItem] = useState(false);
-  const [pantryItems, setPantryItems] = useState<PantryItem[]>([
-    { id: '1', name: 'Chicken Breast', category: 'Protein', quantity: '500g', expiry: '2025-05-15', isLowStock: false },
-    { id: '2', name: 'Brown Rice', category: 'Grains', quantity: '2kg', isLowStock: false },
-    { id: '3', name: 'Olive Oil', category: 'Oils', quantity: '500ml', isLowStock: false },
-    { id: '4', name: 'Garlic', category: 'Produce', quantity: '1 head', expiry: '2025-05-20', isLowStock: false },
-    { id: '5', name: 'Tomatoes', category: 'Produce', quantity: '4 pcs', expiry: '2025-05-10', isLowStock: true },
-    { id: '6', name: 'Pasta', category: 'Grains', quantity: '1kg', isLowStock: false },
-  ]);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const categories = ['All', 'Produce', 'Protein', 'Dairy', 'Grains', 'Spices', 'Oils', 'Baking'];
-  const [selectedCategory, setSelectedCategory] = useState('All');
-
-  const addItemToPantry = (item: Omit<PantryItem, 'id'>) => {
-    const newItem = {
-      ...item,
-      id: Date.now().toString(),
-    };
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isRecipeLoading, setIsRecipeLoading] = useState(false);
+  
+  const [pantryItems, setPantryItems] = useState<PantryItem[]>(() => {
+    // Initialize with some mock data
+    const initialData: PantryItem[] = [
+      {
+        id: '1',
+        name: 'Eggs',
+        quantity: '6',
+        unit: 'pcs',
+        image: 'https://images.unsplash.com/photo-1587486913049-53fc88980cfc?auto=format&fit=crop&w=100&h=100&q=80',
+        expiryDate: '2025-08-20',
+        expiryStatus: 'good'
+      },
+      {
+        id: '2',
+        name: 'Milk',
+        quantity: '0.5',
+        unit: 'L',
+        image: 'https://images.unsplash.com/photo-1563636619-e9143da7973b?auto=format&fit=crop&w=100&h=100&q=80',
+        expiryDate: '2025-05-15',
+        expiryStatus: 'warning'
+      },
+      {
+        id: '3',
+        name: 'Tomatoes',
+        quantity: '4',
+        unit: 'pcs',
+        image: 'https://images.unsplash.com/photo-1607305387299-a3d9611cd469?auto=format&fit=crop&w=100&h=100&q=80',
+        expiryDate: '2025-05-10',
+        expiryStatus: 'warning'
+      },
+      {
+        id: '4',
+        name: 'Chicken Breast',
+        quantity: '500',
+        unit: 'g',
+        image: 'https://images.unsplash.com/photo-1604503468506-a8da13d82791?auto=format&fit=crop&w=100&h=100&q=80',
+        expiryDate: '2025-05-08',
+        expiryStatus: 'expired'
+      },
+    ];
     
-    setPantryItems([...pantryItems, newItem]);
-    setIsAddingItem(false);
-    
-    toast({
-      title: "Item Added",
-      description: `${item.name} has been added to your pantry.`,
+    return initialData;
+  });
+  
+  const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({
+    'expiring-soon': true,
+    'good': true,
+    'expired': false
+  });
+  
+  const toggleCategory = (category: string) => {
+    setExpandedCategories({
+      ...expandedCategories,
+      [category]: !expandedCategories[category]
     });
   };
-
-  const filteredItems = pantryItems.filter(item => {
-    const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = selectedCategory === 'All' || item.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
-
-  const handleQuickRecipe = () => {
-    setIsLoading(true);
+  
+  const handleAddItem = (item: PantryItem) => {
+    setPantryItems([...pantryItems, item]);
     
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
-      toast({
-        title: "Quick Recipe Found!",
-        description: "We've found a recipe based on your pantry ingredients."
-      });
-      navigate('/global');
-    }, 1200);
+    toast({
+      title: "Item added",
+      description: `${item.name} has been added to your pantry.`
+    });
   };
-
+  
+  const handleRemoveItem = (id: string) => {
+    setPantryItems(pantryItems.filter(item => item.id !== id));
+    
+    toast({
+      title: "Item removed",
+      description: "Item has been removed from your pantry."
+    });
+  };
+  
+  const handleFindQuickRecipes = () => {
+    setIsRecipeLoading(true);
+    
+    // Simulate API call delay
+    setTimeout(() => {
+      setIsRecipeLoading(false);
+      
+      toast({
+        title: "Recipes found",
+        description: "We've found several recipes based on your pantry ingredients"
+      });
+      
+      navigate('/global');
+    }, 1500);
+  };
+  
+  const filteredItems = pantryItems.filter(item => 
+    item.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+  
+  const expiringItems = filteredItems.filter(item => item.expiryStatus === 'warning');
+  const goodItems = filteredItems.filter(item => item.expiryStatus === 'good');
+  const expiredItems = filteredItems.filter(item => item.expiryStatus === 'expired');
+  
   return (
     <Layout>
-      <div className="max-w-md mx-auto bg-chef-light-gray min-h-screen pb-24">
+      <div className="max-w-md mx-auto bg-chef-light-gray min-h-screen pb-24 dark:bg-gray-900 dark:text-white">
         {/* Header Section */}
-        <header className="bg-white p-4 flex justify-between items-center shadow-sm">
-          <h1 className="text-2xl font-bold font-montserrat text-chef-primary">Smart Pantry</h1>
+        <header className="bg-white p-4 flex justify-between items-center shadow-sm dark:bg-gray-800">
+          <h1 className="text-2xl font-bold font-montserrat text-chef-primary dark:text-chef-primary/90">Smart Pantry</h1>
           <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={() => setIsAddingItem(true)}
-            disabled={isAddingItem}
+            variant="outline" 
+            size="icon"
+            onClick={() => setIsAddDialogOpen(true)}
           >
-            <Plus size={20} />
+            <PlusCircle size={20} />
           </Button>
         </header>
         
-        {isAddingItem ? (
-          <PantryAddForm 
-            onSubmit={addItemToPantry} 
-            onCancel={() => setIsAddingItem(false)} 
+        {/* Search Section */}
+        <div className="p-4">
+          <div className="relative">
+            <Input
+              placeholder="Search ingredients..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+            <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
+          </div>
+        </div>
+        
+        {/* Summary Section */}
+        <div className="px-4 mb-2">
+          <div className="bg-white p-4 rounded-lg shadow-sm dark:bg-gray-800">
+            <h3 className="text-lg font-semibold mb-2">Pantry Summary</h3>
+            <div className="flex justify-between">
+              <div className="text-center">
+                <p className="font-bold text-xl">{pantryItems.length}</p>
+                <p className="text-sm text-chef-medium-gray dark:text-gray-400">Total Items</p>
+              </div>
+              <div className="text-center">
+                <p className="font-bold text-xl text-amber-500">{expiringItems.length}</p>
+                <p className="text-sm text-chef-medium-gray dark:text-gray-400">Expiring Soon</p>
+              </div>
+              <div className="text-center">
+                <p className="font-bold text-xl text-red-500">{expiredItems.length}</p>
+                <p className="text-sm text-chef-medium-gray dark:text-gray-400">Expired</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Find Quick Recipe Button */}
+        <div className="px-4 py-2">
+          <FindRecipesButton 
+            onClick={handleFindQuickRecipes} 
+            isLoading={isRecipeLoading}
+            text="Find Quick Recipe from Pantry"
           />
-        ) : (
-          <>
-            {/* Search */}
-            <div className="p-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-chef-medium-gray" size={18} />
-                <Input 
-                  placeholder="Search your pantry..." 
-                  className="pl-10"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-            </div>
-            
-            {/* Category Filter */}
-            <div className="px-4 overflow-auto">
-              <div className="flex space-x-2 pb-2 overflow-x-auto scrollbar-none">
-                {categories.map((category) => (
-                  <Button 
-                    key={category}
-                    variant={selectedCategory === category ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setSelectedCategory(category)}
-                    className="whitespace-nowrap"
-                  >
-                    {category}
-                  </Button>
-                ))}
-              </div>
-            </div>
-            
-            {/* Quick Recipe Button */}
-            <div className="px-4 py-3">
-              <Button 
-                className="w-full bg-gradient-to-r from-amber-500 to-amber-400 hover:opacity-90 flex items-center justify-center gap-2 py-2"
-                onClick={handleQuickRecipe}
-                disabled={isLoading}
+        </div>
+
+        {/* Pantry Items List */}
+        <ScrollArea className="flex-1">
+          {expiringItems.length > 0 && (
+            <div className="px-4 py-2">
+              <div 
+                className="flex justify-between items-center py-2 border-b dark:border-gray-700" 
+                onClick={() => toggleCategory('expiring-soon')}
               >
-                <Zap size={18} className={isLoading ? "animate-pulse" : ""} />
-                <span>{isLoading ? "Finding Recipe..." : "Find Quick Recipe"}</span>
-              </Button>
-            </div>
-            
-            {/* Pantry Items */}
-            <div className="px-4">
-              <h2 className="text-lg font-semibold mb-3">Your Pantry ({filteredItems.length})</h2>
-              
-              {filteredItems.length > 0 ? (
-                <div className="space-y-2">
-                  {filteredItems.map((item) => (
+                <h3 className="text-amber-500 font-semibold">Expiring Soon</h3>
+                <Button variant="ghost" size="sm" className="p-0 h-auto">
+                  {expandedCategories['expiring-soon'] ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                </Button>
+              </div>
+              {expandedCategories['expiring-soon'] && (
+                <div className="py-2 space-y-3">
+                  {expiringItems.map(item => (
                     <div 
                       key={item.id} 
-                      className={`bg-white p-3 rounded-lg flex justify-between items-center ${item.isLowStock ? 'border-l-4 border-yellow-400' : ''}`}
+                      className="bg-white rounded-lg p-3 flex items-center shadow-sm dark:bg-gray-800"
                     >
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <Checkbox id={`item-${item.id}`} />
-                          <Label htmlFor={`item-${item.id}`} className="text-base font-medium cursor-pointer">{item.name}</Label>
+                      <img 
+                        src={item.image} 
+                        alt={item.name} 
+                        className="w-12 h-12 rounded-md object-cover"
+                      />
+                      <div className="ml-3 flex-1">
+                        <div className="flex justify-between">
+                          <h4 className="font-medium">{item.name}</h4>
+                          <Badge variant="outline" className="bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-900/30 dark:border-amber-700">
+                            Expires soon
+                          </Badge>
                         </div>
-                        <div className="ml-6 text-xs text-chef-medium-gray flex gap-2">
-                          <span>{item.category}</span>
-                          <span>•</span>
-                          <span>{item.quantity}</span>
-                          {item.expiry && (
-                            <>
-                              <span>•</span>
-                              <span>Exp: {new Date(item.expiry).toLocaleDateString()}</span>
-                            </>
-                          )}
+                        <div className="flex justify-between mt-1">
+                          <span className="text-sm text-chef-medium-gray dark:text-gray-400">
+                            {item.quantity} {item.unit}
+                          </span>
+                          <button 
+                            onClick={() => handleRemoveItem(item.id)}
+                            className="text-red-500"
+                          >
+                            <Trash2 size={16} />
+                          </button>
                         </div>
                       </div>
-                      
-                      <Button variant="ghost" size="icon" className="text-chef-medium-gray">
-                        <ShoppingCart size={18} />
-                      </Button>
                     </div>
                   ))}
                 </div>
-              ) : (
-                <div className="bg-white p-6 rounded-lg text-center">
-                  <p className="text-chef-medium-gray">No items found. Add some ingredients to your pantry!</p>
+              )}
+            </div>
+          )}
+          
+          {goodItems.length > 0 && (
+            <div className="px-4 py-2">
+              <div 
+                className="flex justify-between items-center py-2 border-b dark:border-gray-700" 
+                onClick={() => toggleCategory('good')}
+              >
+                <h3 className="text-green-600 font-semibold">Good</h3>
+                <Button variant="ghost" size="sm" className="p-0 h-auto">
+                  {expandedCategories['good'] ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                </Button>
+              </div>
+              {expandedCategories['good'] && (
+                <div className="py-2 space-y-3">
+                  {goodItems.map(item => (
+                    <div 
+                      key={item.id} 
+                      className="bg-white rounded-lg p-3 flex items-center shadow-sm dark:bg-gray-800"
+                    >
+                      <img 
+                        src={item.image} 
+                        alt={item.name} 
+                        className="w-12 h-12 rounded-md object-cover"
+                      />
+                      <div className="ml-3 flex-1">
+                        <div className="flex justify-between">
+                          <h4 className="font-medium">{item.name}</h4>
+                        </div>
+                        <div className="flex justify-between mt-1">
+                          <span className="text-sm text-chef-medium-gray dark:text-gray-400">
+                            {item.quantity} {item.unit}
+                          </span>
+                          <button 
+                            onClick={() => handleRemoveItem(item.id)}
+                            className="text-red-500"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
-          </>
-        )}
+          )}
+          
+          {expiredItems.length > 0 && (
+            <div className="px-4 py-2">
+              <div 
+                className="flex justify-between items-center py-2 border-b dark:border-gray-700" 
+                onClick={() => toggleCategory('expired')}
+              >
+                <h3 className="text-red-500 font-semibold">Expired</h3>
+                <Button variant="ghost" size="sm" className="p-0 h-auto">
+                  {expandedCategories['expired'] ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                </Button>
+              </div>
+              {expandedCategories['expired'] && (
+                <div className="py-2 space-y-3">
+                  {expiredItems.map(item => (
+                    <div 
+                      key={item.id} 
+                      className="bg-white rounded-lg p-3 flex items-center shadow-sm dark:bg-gray-800"
+                    >
+                      <img 
+                        src={item.image} 
+                        alt={item.name} 
+                        className="w-12 h-12 rounded-md object-cover"
+                      />
+                      <div className="ml-3 flex-1">
+                        <div className="flex justify-between">
+                          <h4 className="font-medium">{item.name}</h4>
+                          <Badge variant="outline" className="bg-red-50 text-red-600 border-red-200 dark:bg-red-900/30 dark:border-red-700">
+                            Expired
+                          </Badge>
+                        </div>
+                        <div className="flex justify-between mt-1">
+                          <span className="text-sm text-chef-medium-gray dark:text-gray-400">
+                            {item.quantity} {item.unit}
+                          </span>
+                          <button 
+                            onClick={() => handleRemoveItem(item.id)}
+                            className="text-red-500"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+          
+          {filteredItems.length === 0 && (
+            <div className="px-4 py-12 text-center">
+              <p className="text-chef-medium-gray dark:text-gray-400 mb-4">Your pantry is empty. Add some ingredients!</p>
+              <Button 
+                variant="outline" 
+                className="flex items-center gap-2"
+                onClick={() => setIsAddDialogOpen(true)}
+              >
+                <Plus size={16} />
+                <span>Add Ingredient</span>
+              </Button>
+            </div>
+          )}
+        </ScrollArea>
+        
+        {/* Add Item Dialog */}
+        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+          <DialogContent className="sm:max-w-md">
+            <PantryAddForm onAddItem={handleAddItem} onClose={() => setIsAddDialogOpen(false)} />
+          </DialogContent>
+        </Dialog>
       </div>
     </Layout>
   );

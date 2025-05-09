@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
+import PremiumFeatureGuard from '../components/PremiumFeatureGuard';
 import { 
   Bookmark, 
   Share2, 
@@ -10,7 +11,8 @@ import {
   Users,
   ChefHat,
   Star,
-  Timer
+  Timer,
+  Lock
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from '@/components/ui/button';
@@ -25,6 +27,7 @@ const Recipe = () => {
   const [servings, setServings] = useState(4);
   const [isCooking, setIsCooking] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
+  const [usageCount, setUsageCount] = useState(245);
   
   // Mock recipe data
   const recipe = {
@@ -115,6 +118,10 @@ const Recipe = () => {
   const handleCookNow = () => {
     setIsCooking(true);
     setCurrentStep(0);
+    
+    // Increment usage count
+    setUsageCount(usageCount + 1);
+    
     toast({
       title: "Cooking mode activated",
       description: "Follow the step-by-step instructions to prepare your meal!"
@@ -139,15 +146,87 @@ const Recipe = () => {
     }
   };
 
+  // Cooking instructions component (premium feature)
+  const CookingInstructions = () => (
+    <PremiumFeatureGuard featureName="Detailed Cooking Instructions">
+      <ol className="space-y-4 list-decimal list-outside ml-5">
+        {recipe.instructions.map((step, index) => (
+          <li key={index} className="pl-2">
+            {step}
+          </li>
+        ))}
+      </ol>
+    </PremiumFeatureGuard>
+  );
+
+  // Nutrition Analysis component (premium feature)
+  const NutritionAnalysis = () => (
+    <PremiumFeatureGuard featureName="Detailed Nutrition Analysis">
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-lg font-semibold">Basic Nutrition Facts</h3>
+        <Badge className="bg-chef-primary">Per Serving</Badge>
+      </div>
+      
+      <div className="grid grid-cols-2 gap-4">
+        <div className="bg-chef-light-gray rounded-lg p-3 text-center dark:bg-gray-700">
+          <p className="text-sm text-chef-medium-gray dark:text-gray-300">Calories</p>
+          <p className="text-xl font-semibold">{recipe.nutrition.calories}</p>
+        </div>
+        <div className="bg-chef-light-gray rounded-lg p-3 text-center dark:bg-gray-700">
+          <p className="text-sm text-chef-medium-gray dark:text-gray-300">Protein</p>
+          <p className="text-xl font-semibold">{recipe.nutrition.protein}</p>
+        </div>
+        <div className="bg-chef-light-gray rounded-lg p-3 text-center dark:bg-gray-700">
+          <p className="text-sm text-chef-medium-gray dark:text-gray-300">Carbs</p>
+          <p className="text-xl font-semibold">{recipe.nutrition.carbs}</p>
+        </div>
+        <div className="bg-chef-light-gray rounded-lg p-3 text-center dark:bg-gray-700">
+          <p className="text-sm text-chef-medium-gray dark:text-gray-300">Fat</p>
+          <p className="text-xl font-semibold">{recipe.nutrition.fat}</p>
+        </div>
+      </div>
+      
+      <div className="mt-6 p-4">
+        <h4 className="font-semibold mb-2">Detailed Breakdown</h4>
+        <ul className="space-y-2">
+          <li className="flex justify-between">
+            <span>Saturated Fat</span>
+            <span>2.5g</span>
+          </li>
+          <li className="flex justify-between">
+            <span>Trans Fat</span>
+            <span>0g</span>
+          </li>
+          <li className="flex justify-between">
+            <span>Cholesterol</span>
+            <span>155mg</span>
+          </li>
+          <li className="flex justify-between">
+            <span>Sodium</span>
+            <span>640mg</span>
+          </li>
+          <li className="flex justify-between">
+            <span>Dietary Fiber</span>
+            <span>3g</span>
+          </li>
+          <li className="flex justify-between">
+            <span>Sugars</span>
+            <span>6g</span>
+          </li>
+        </ul>
+      </div>
+    </PremiumFeatureGuard>
+  );
+
   // If in cooking mode, show the cooking interface
   if (isCooking) {
     return (
       <Layout>
-        <div className="max-w-md mx-auto bg-chef-light-gray min-h-screen pb-20">
-          <div className="bg-white p-4 shadow-sm flex items-center justify-between">
+        <div className="max-w-md mx-auto bg-chef-light-gray min-h-screen pb-20 dark:bg-gray-900 dark:text-white">
+          <div className="bg-white p-4 shadow-sm flex items-center justify-between dark:bg-gray-800">
             <button 
               onClick={handleBack}
-              className="flex items-center text-chef-medium-gray"
+              className="flex items-center text-chef-medium-gray dark:text-gray-300"
             >
               <ChevronLeft size={24} />
               <span>Exit Cooking</span>
@@ -155,10 +234,10 @@ const Recipe = () => {
             <span className="font-bold">Step {currentStep + 1}/{recipe.instructions.length}</span>
           </div>
 
-          <div className="p-4 bg-white mt-2 flex-1">
+          <div className="p-4 bg-white mt-2 flex-1 dark:bg-gray-800">
             <h2 className="text-xl font-semibold mb-4">{recipe.title}</h2>
             
-            <div className="bg-chef-light-gray p-6 rounded-lg mb-4 min-h-[200px] flex items-center justify-center">
+            <div className="bg-chef-light-gray p-6 rounded-lg mb-4 min-h-[200px] flex items-center justify-center dark:bg-gray-700">
               <p className="text-lg">{recipe.instructions[currentStep]}</p>
             </div>
             
@@ -202,7 +281,7 @@ const Recipe = () => {
 
   return (
     <Layout>
-      <div className="max-w-md mx-auto bg-chef-light-gray min-h-screen pb-20">
+      <div className="max-w-md mx-auto bg-chef-light-gray min-h-screen pb-20 dark:bg-gray-900 dark:text-white">
         {/* Recipe Image Section */}
         <div className="relative h-64">
           <img 
@@ -214,7 +293,7 @@ const Recipe = () => {
           <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-center">
             <button 
               onClick={handleBack}
-              className="bg-white/80 backdrop-blur-sm p-2 rounded-full"
+              className="bg-white/80 backdrop-blur-sm p-2 rounded-full dark:bg-black/50"
             >
               <ChevronLeft size={24} />
             </button>
@@ -222,7 +301,7 @@ const Recipe = () => {
             <div className="flex gap-2">
               <button 
                 onClick={handleSave}
-                className="bg-white/80 backdrop-blur-sm p-2 rounded-full"
+                className="bg-white/80 backdrop-blur-sm p-2 rounded-full dark:bg-black/50"
               >
                 <Bookmark 
                   size={24} 
@@ -232,7 +311,7 @@ const Recipe = () => {
               
               <button 
                 onClick={handleShare}
-                className="bg-white/80 backdrop-blur-sm p-2 rounded-full"
+                className="bg-white/80 backdrop-blur-sm p-2 rounded-full dark:bg-black/50"
               >
                 <Share2 size={24} />
               </button>
@@ -241,30 +320,35 @@ const Recipe = () => {
         </div>
         
         {/* Recipe Info Section */}
-        <div className="bg-white p-4 shadow-sm">
+        <div className="bg-white p-4 shadow-sm dark:bg-gray-800">
           <h1 className="text-2xl font-bold mb-2">{recipe.title}</h1>
           
           <div className="flex flex-wrap gap-3 mb-3">
-            <div className="flex items-center gap-1 text-chef-medium-gray">
+            <div className="flex items-center gap-1 text-chef-medium-gray dark:text-gray-300">
               <Clock size={16} />
               <span>{recipe.time}</span>
             </div>
             
-            <div className="flex items-center gap-1 text-chef-medium-gray">
+            <div className="flex items-center gap-1 text-chef-medium-gray dark:text-gray-300">
               <span className={`difficulty-dot difficulty-easy`}></span>
               <span className="capitalize">{recipe.difficulty}</span>
             </div>
             
-            <div className="flex items-center gap-1 text-chef-medium-gray">
+            <div className="flex items-center gap-1 text-chef-medium-gray dark:text-gray-300">
               <ChefHat size={16} />
               <span className="capitalize">{recipe.cuisine}</span>
             </div>
           </div>
           
-          <p className="text-chef-dark-gray mb-4">{recipe.description}</p>
+          <p className="text-chef-dark-gray mb-4 dark:text-gray-300">{recipe.description}</p>
+          
+          {/* Usage Count */}
+          <div className="mb-4 text-sm text-chef-medium-gray dark:text-gray-400">
+            <span>Used {usageCount} times by other users</span>
+          </div>
           
           {/* Servings Adjuster */}
-          <div className="flex items-center justify-between bg-chef-light-gray rounded-lg p-3 mb-2">
+          <div className="flex items-center justify-between bg-chef-light-gray rounded-lg p-3 mb-2 dark:bg-gray-700">
             <div className="flex items-center gap-2">
               <Users size={20} />
               <span>Servings</span>
@@ -294,7 +378,7 @@ const Recipe = () => {
         </div>
         
         {/* Recipe Content Tabs */}
-        <div className="bg-white mt-2 pb-4">
+        <div className="bg-white mt-2 pb-4 dark:bg-gray-800">
           <Tabs defaultValue="ingredients" className="w-full">
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="ingredients">Ingredients</TabsTrigger>
@@ -305,7 +389,7 @@ const Recipe = () => {
             <TabsContent value="ingredients" className="p-4">
               <ul className="space-y-3">
                 {recipe.ingredients.map((ingredient, index) => (
-                  <li key={index} className="flex justify-between items-center pb-2 border-b">
+                  <li key={index} className="flex justify-between items-center pb-2 border-b dark:border-gray-700">
                     <span>{ingredient.name}</span>
                     <span className="font-medium">
                       {calculateAdjustedQuantity(ingredient.quantity, recipe.servings)} {ingredient.unit}
@@ -316,55 +400,17 @@ const Recipe = () => {
             </TabsContent>
             
             <TabsContent value="instructions" className="p-4">
-              <ol className="space-y-4 list-decimal list-outside ml-5">
-                {recipe.instructions.map((step, index) => (
-                  <li key={index} className="pl-2">
-                    {step}
-                  </li>
-                ))}
-              </ol>
+              <CookingInstructions />
             </TabsContent>
             
             <TabsContent value="nutrition" className="p-4">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold">Basic Nutrition Facts</h3>
-                <Badge className="bg-chef-primary">Per Serving</Badge>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-chef-light-gray rounded-lg p-3 text-center">
-                  <p className="text-sm text-chef-medium-gray">Calories</p>
-                  <p className="text-xl font-semibold">{recipe.nutrition.calories}</p>
-                </div>
-                <div className="bg-chef-light-gray rounded-lg p-3 text-center">
-                  <p className="text-sm text-chef-medium-gray">Protein</p>
-                  <p className="text-xl font-semibold">{recipe.nutrition.protein}</p>
-                </div>
-                <div className="bg-chef-light-gray rounded-lg p-3 text-center">
-                  <p className="text-sm text-chef-medium-gray">Carbs</p>
-                  <p className="text-xl font-semibold">{recipe.nutrition.carbs}</p>
-                </div>
-                <div className="bg-chef-light-gray rounded-lg p-3 text-center">
-                  <p className="text-sm text-chef-medium-gray">Fat</p>
-                  <p className="text-xl font-semibold">{recipe.nutrition.fat}</p>
-                </div>
-              </div>
-              
-              {recipe.nutrition.isPremium && (
-                <div className="mt-6 border border-dashed border-chef-primary rounded-lg p-4 flex items-center gap-3">
-                  <Star className="text-chef-primary fill-chef-primary" />
-                  <div>
-                    <h4 className="font-semibold">Detailed Nutrition Analysis</h4>
-                    <p className="text-sm text-chef-medium-gray">Upgrade to premium for complete nutritional breakdown</p>
-                  </div>
-                </div>
-              )}
+              <NutritionAnalysis />
             </TabsContent>
           </Tabs>
         </div>
         
         {/* Cook Now Button */}
-        <div className="fixed bottom-20 left-0 right-0 px-4 py-3 bg-gradient-to-t from-white to-transparent max-w-md mx-auto">
+        <div className="fixed bottom-20 left-0 right-0 px-4 py-3 bg-gradient-to-t from-white to-transparent max-w-md mx-auto dark:from-gray-900">
           <Button
             className="w-full py-6 bg-chef-secondary hover:bg-chef-secondary/90 flex items-center justify-center gap-3 text-lg"
             onClick={handleCookNow}

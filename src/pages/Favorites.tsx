@@ -1,153 +1,229 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Layout from '../components/Layout';
-import { Heart, ChevronLeft, Search } from 'lucide-react';
+import RecipeCard from '../components/RecipeCard';
+import { ChevronLeft, Search, BookmarkPlus, FolderPlus, Heart, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import RecipeCard, { Recipe } from '../components/RecipeCard';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { useNavigate } from 'react-router-dom';
-import { useToast } from '@/components/ui/use-toast';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+// Define the Recipe type
+type Recipe = {
+  id: string;
+  title: string;
+  image: string;
+  time: string;
+  difficulty: 'easy' | 'medium' | 'hard';
+  cuisine: string;
+  servings: number;
+  collection?: string;
+};
 
 const Favorites = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
-  const [favoriteRecipes, setFavoriteRecipes] = useState<Recipe[]>([]);
-  const [filteredRecipes, setFilteredRecipes] = useState<Recipe[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  // Mock data loading for favorite recipes
-  useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      const mockFavorites: Recipe[] = [
-        {
-          id: '1',
-          title: 'Classic Margherita Pizza',
-          image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=800&q=80',
-          time: '45 mins',
-          difficulty: 'medium',
-          cuisine: 'italian',
-          servings: 4,
-          usageCount: 12
-        },
-        {
-          id: '2',
-          title: 'Homemade Chocolate Cake',
-          image: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=800&q=80',
-          time: '90 mins',
-          difficulty: 'hard',
-          cuisine: 'dessert',
-          servings: 8,
-          usageCount: 5
-        },
-        {
-          id: '3',
-          title: 'Mediterranean Salad',
-          image: 'https://images.unsplash.com/photo-1540420828642-fca2c5c18abe?auto=format&fit=crop&w=800&q=80',
-          time: '15 mins',
-          difficulty: 'easy',
-          cuisine: 'mediterranean',
-          servings: 2,
-          usageCount: 8
-        }
-      ];
-      
-      setFavoriteRecipes(mockFavorites);
-      setFilteredRecipes(mockFavorites);
-      setIsLoading(false);
-    }, 1000);
-  }, []);
-
-  // Handle search functionality
-  useEffect(() => {
-    if (searchQuery.trim() === '') {
-      setFilteredRecipes(favoriteRecipes);
-    } else {
-      const query = searchQuery.toLowerCase();
-      const filtered = favoriteRecipes.filter((recipe) => 
-        recipe.title.toLowerCase().includes(query) || 
-        recipe.cuisine.toLowerCase().includes(query)
-      );
-      setFilteredRecipes(filtered);
+  const [activeCollection, setActiveCollection] = useState<string>('all');
+  
+  // Mock collections
+  const collections = [
+    { id: 'all', name: 'All Saved', count: 15 },
+    { id: 'weeknight', name: 'Weeknight Dinners', count: 6 },
+    { id: 'weekend', name: 'Weekend Cooking', count: 5 },
+    { id: 'desserts', name: 'Sweet Treats', count: 4 }
+  ];
+  
+  // Mock favorite recipes data
+  const recipes: Recipe[] = [
+    {
+      id: '1',
+      title: 'Homemade Pasta with Fresh Tomato Sauce',
+      image: 'https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&w=800&q=80',
+      time: '35 mins',
+      difficulty: 'easy',
+      cuisine: 'italian',
+      servings: 4,
+      collection: 'weeknight'
+    },
+    {
+      id: '2',
+      title: 'Crispy Chicken Salad with Honey Mustard Dressing',
+      image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80',
+      time: '20 mins',
+      difficulty: 'easy',
+      cuisine: 'american',
+      servings: 2,
+      collection: 'weeknight'
+    },
+    {
+      id: '3',
+      title: 'Authentic Mexican Tacos',
+      image: 'https://images.unsplash.com/photo-1613514785940-daed77081595?auto=format&fit=crop&w=800&q=80',
+      time: '40 mins',
+      difficulty: 'medium',
+      cuisine: 'mexican',
+      servings: 4,
+      collection: 'weekend'
+    },
+    {
+      id: '4',
+      title: 'Japanese Miso Ramen',
+      image: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=800&q=80',
+      time: '50 mins',
+      difficulty: 'medium',
+      cuisine: 'japanese',
+      servings: 3,
+      collection: 'weekend'
+    },
+    {
+      id: '5',
+      title: 'Chocolate Lava Cake',
+      image: 'https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?auto=format&fit=crop&w=800&q=80',
+      time: '25 mins',
+      difficulty: 'medium',
+      cuisine: 'dessert',
+      servings: 2,
+      collection: 'desserts'
+    },
+    {
+      id: '6',
+      title: 'Classic New York Cheesecake',
+      image: 'https://images.unsplash.com/photo-1533134242443-d4fd258294f1?auto=format&fit=crop&w=800&q=80',
+      time: '80 mins',
+      difficulty: 'hard',
+      cuisine: 'dessert',
+      servings: 8,
+      collection: 'desserts'
     }
-  }, [searchQuery, favoriteRecipes]);
-
-  // Handle removing from favorites
-  const handleRemoveFromFavorites = (recipeId: string) => {
-    const updatedFavorites = favoriteRecipes.filter(recipe => recipe.id !== recipeId);
-    setFavoriteRecipes(updatedFavorites);
-    
-    toast({
-      title: "Removed from favorites",
-      description: "Recipe has been removed from your favorites."
-    });
+  ];
+  
+  // Filter recipes based on search query and active collection
+  const filteredRecipes = recipes.filter(recipe => 
+    recipe.title.toLowerCase().includes(searchQuery.toLowerCase()) && 
+    (activeCollection === 'all' || recipe.collection === activeCollection)
+  );
+  
+  const handleBack = () => {
+    navigate(-1);
   };
-
+  
+  const handleCollectionSelect = (collectionId: string) => {
+    setActiveCollection(collectionId);
+  };
+  
+  const handleAddCollection = () => {
+    // Implement add collection logic here
+    console.log('Add new collection');
+  };
+  
   return (
     <Layout>
-      <div className="max-w-md mx-auto bg-chef-light-gray min-h-screen pb-20">
-        {/* Header with back button */}
-        <div className="bg-white p-4 flex items-center shadow-sm">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={() => navigate(-1)} 
-            className="mr-2"
-          >
-            <ChevronLeft size={24} />
-          </Button>
-          <h1 className="text-2xl font-bold font-montserrat text-chef-primary">Favorites</h1>
-        </div>
+      <div className="max-w-md mx-auto bg-chef-light-gray min-h-screen pb-24 dark:bg-gray-900 dark:text-white">
+        {/* Header */}
+        <header className="bg-white p-4 flex items-center justify-between shadow-sm dark:bg-gray-800">
+          <div className="flex items-center">
+            <button 
+              onClick={handleBack}
+              className="mr-4"
+            >
+              <ChevronLeft size={24} className="text-chef-primary" />
+            </button>
+            <h1 className="text-2xl font-bold font-montserrat text-chef-primary">My Favorites</h1>
+          </div>
+          
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm">
+                <Filter size={18} />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Sort By</DropdownMenuLabel>
+              <DropdownMenuItem>Newest First</DropdownMenuItem>
+              <DropdownMenuItem>Oldest First</DropdownMenuItem>
+              <DropdownMenuItem>Alphabetical (A-Z)</DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>Filter by Cuisine</DropdownMenuItem>
+              <DropdownMenuItem>Filter by Difficulty</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </header>
         
-        {/* Search */}
+        {/* Search Bar */}
         <div className="p-4">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-chef-medium-gray" size={18} />
-            <Input 
-              placeholder="Search favorites..." 
-              value={searchQuery} 
+            <Input
+              placeholder="Search in favorites..."
+              value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 pr-4 py-2 bg-white"
+              className="pl-10"
             />
+            <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
           </div>
         </div>
         
-        {/* Favorites List */}
-        <div className="px-4 py-2">
-          {isLoading ? (
-            <div className="flex justify-center items-center h-60">
-              <p>Loading your favorites...</p>
-            </div>
-          ) : filteredRecipes.length > 0 ? (
-            <div className="space-y-4">
-              <h2 className="text-lg font-semibold">Your Favorite Recipes</h2>
-              {filteredRecipes.map(recipe => (
-                <div key={recipe.id} className="relative">
-                  <RecipeCard recipe={recipe} />
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    className="absolute top-2 right-2 bg-white rounded-full p-1.5 shadow-sm"
-                    onClick={() => handleRemoveFromFavorites(recipe.id)}
-                  >
-                    <Heart size={16} className="fill-chef-primary text-chef-primary" />
-                  </Button>
-                </div>
+        {/* Collections Tabs */}
+        <div className="px-4 mb-4">
+          <ScrollArea className="whitespace-nowrap pb-2">
+            <div className="flex space-x-2">
+              {collections.map(collection => (
+                <Button 
+                  key={collection.id}
+                  variant={activeCollection === collection.id ? "default" : "outline"}
+                  className={`rounded-full ${activeCollection === collection.id ? 'bg-chef-primary' : ''}`}
+                  onClick={() => handleCollectionSelect(collection.id)}
+                >
+                  {collection.name} ({collection.count})
+                </Button>
               ))}
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <Heart size={48} className="mx-auto mb-4 text-chef-medium-gray" />
-              <h3 className="text-xl font-semibold mb-2">No favorites yet</h3>
-              <p className="text-chef-medium-gray mb-6">
-                Start adding your favorite recipes here
-              </p>
-              <Button onClick={() => navigate('/global')}>
-                Browse Recipes
+              <Button 
+                variant="outline" 
+                className="rounded-full flex items-center gap-1"
+                onClick={handleAddCollection}
+              >
+                <FolderPlus size={16} />
+                <span>New</span>
               </Button>
             </div>
-          )}
+          </ScrollArea>
+        </div>
+        
+        {/* Recipes Grid */}
+        <div className="px-4">
+          <div className="grid grid-cols-1 gap-4 mb-4">
+            {filteredRecipes.length > 0 ? (
+              filteredRecipes.map(recipe => (
+                <RecipeCard key={recipe.id} recipe={recipe} />
+              ))
+            ) : (
+              <div className="p-12 text-center">
+                <Heart size={48} className="mx-auto mb-4 text-chef-medium-gray opacity-50 dark:text-gray-500" />
+                <h3 className="text-lg font-semibold mb-2">No Favorites Found</h3>
+                <p className="text-chef-medium-gray dark:text-gray-400">
+                  {searchQuery ? 
+                    `No recipes matching "${searchQuery}" in your favorites` : 
+                    "You haven't saved any recipes yet"
+                  }
+                </p>
+                
+                <Button 
+                  onClick={() => navigate('/')}
+                  className="mt-6 bg-chef-primary hover:bg-chef-primary/90"
+                >
+                  Discover Recipes
+                </Button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </Layout>

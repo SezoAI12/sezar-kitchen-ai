@@ -6,10 +6,27 @@ import SubcategorySelection from '../components/SubcategorySelection';
 import IngredientSelector from '../components/IngredientSelector';
 import FilterSystem, { FilterOptions } from '../components/FilterSystem';
 import QuickAccessBar from '../components/QuickAccessBar';
+import FindRecipesButton from '../components/FindRecipesButton';
 import { Button } from '@/components/ui/button';
-import { FileText, BookmarkPlus, Clock, Globe, ChefHat } from 'lucide-react';
+import {
+  FileText,
+  BookmarkPlus,
+  Clock,
+  Globe,
+  ChevronDown,
+  Check
+} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type Ingredient = {
   id: string;
@@ -35,6 +52,10 @@ const Index = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterOptions, setFilterOptions] = useState<FilterOptions>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState<string>('');
+  const [selectedMealType, setSelectedMealType] = useState<string>('');
+  const [selectedDiet, setSelectedDiet] = useState<string>('');
+  
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -66,7 +87,7 @@ const Index = () => {
       setIsLoading(false);
       toast({
         title: "Recipes found",
-        description: "Check your favorites for personalized recipe recommendations"
+        description: "Check your results for personalized recipe recommendations"
       });
       navigate('/global');
     }, 1500);
@@ -75,6 +96,48 @@ const Index = () => {
   const handleNavigateTo = (path: string) => {
     navigate(path);
   };
+
+  // Countries list for dropdown
+  const countries = [
+    { value: 'international', label: 'International' },
+    { value: 'syrian', label: 'Syrian' },
+    { value: 'moroccan', label: 'Moroccan' },
+    { value: 'turkish', label: 'Turkish' },
+    { value: 'iraqi', label: 'Iraqi' },
+    { value: 'gulf', label: 'Gulf' },
+    { value: 'yemeni', label: 'Yemeni' },
+    { value: 'egyptian', label: 'Egyptian' },
+    { value: 'iranian', label: 'Iranian' },
+    { value: 'indian', label: 'Indian' },
+    { value: 'chinese', label: 'Chinese' },
+    { value: 'italian', label: 'Italian' },
+    { value: 'greek', label: 'Greek' },
+    { value: 'thai', label: 'Thai' },
+    { value: 'japanese', label: 'Japanese' },
+    { value: 'european', label: 'European' },
+    { value: 'american', label: 'American' },
+  ];
+
+  // Meal types list for dropdown
+  const mealTypes = [
+    { value: 'any', label: 'Any Meal' },
+    { value: 'breakfast', label: 'Breakfast' },
+    { value: 'lunch', label: 'Lunch' },
+    { value: 'dinner', label: 'Dinner' },
+    { value: 'snack', label: 'Snack' },
+  ];
+
+  // Diet preferences list for dropdown
+  const dietaryPreferences = [
+    { value: 'normal', label: 'Normal' },
+    { value: 'healthy', label: 'Healthy' },
+    { value: 'vegan', label: 'Vegan' },
+    { value: 'vegetarian', label: 'Vegetarian' },
+    { value: 'gluten-free', label: 'Gluten Free' },
+    { value: 'dairy-free', label: 'Dairy Free' },
+    { value: 'keto', label: 'Keto' },
+    { value: 'low-carb', label: 'Low Carb' },
+  ];
 
   return (
     <Layout>
@@ -133,6 +196,70 @@ const Index = () => {
             selectedSubcategory={selectedSubcategory}
           />
         )}
+
+        {/* Additional Category Dropdowns */}
+        <div className="px-4 py-4 bg-white mt-2">
+          <h3 className="text-lg font-semibold mb-3">Additional Filters</h3>
+          
+          <div className="space-y-3">
+            {/* Country Selection */}
+            <div>
+              <label htmlFor="country" className="text-sm font-medium mb-1 block">Country</label>
+              <Select value={selectedCountry} onValueChange={setSelectedCountry}>
+                <SelectTrigger id="country" className="w-full">
+                  <SelectValue placeholder="Select country" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    {countries.map((country) => (
+                      <SelectItem key={country.value} value={country.value}>
+                        {country.label}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            {/* Meal Type Selection */}
+            <div>
+              <label htmlFor="mealType" className="text-sm font-medium mb-1 block">Meal Type</label>
+              <Select value={selectedMealType} onValueChange={setSelectedMealType}>
+                <SelectTrigger id="mealType" className="w-full">
+                  <SelectValue placeholder="Select meal type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    {mealTypes.map((meal) => (
+                      <SelectItem key={meal.value} value={meal.value}>
+                        {meal.label}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            {/* Dietary Preferences Selection */}
+            <div>
+              <label htmlFor="dietaryPreferences" className="text-sm font-medium mb-1 block">Dietary Preferences</label>
+              <Select value={selectedDiet} onValueChange={setSelectedDiet}>
+                <SelectTrigger id="dietaryPreferences" className="w-full">
+                  <SelectValue placeholder="Select dietary preference" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    {dietaryPreferences.map((diet) => (
+                      <SelectItem key={diet.value} value={diet.value}>
+                        {diet.label}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
         
         {/* Ingredient Selector */}
         <IngredientSelector 
@@ -148,26 +275,11 @@ const Index = () => {
         
         {/* Action Buttons Section */}
         <div className="px-4 py-3 space-y-4">
-          {/* Find Recipes Button with updated text */}
-          <Button
-            className="w-full py-6 bg-gradient-to-r from-chef-primary to-chef-primary/80 hover:opacity-95 flex items-center justify-center gap-3 text-lg shadow-md"
-            onClick={handleFindRecipes}
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <>
-                <div className="animate-spin">
-                  <ChefHat size={24} />
-                </div>
-                <span>Finding Recipes...</span>
-              </>
-            ) : (
-              <>
-                <ChefHat size={24} className="transition-transform group-hover:animate-spin-slow" />
-                <span>Find a Recipe Using AI</span>
-              </>
-            )}
-          </Button>
+          {/* Find Recipes Button using the custom component */}
+          <FindRecipesButton 
+            onClick={handleFindRecipes} 
+            isLoading={isLoading}
+          />
           
           {/* Share Recipe Button */}
           <Button 

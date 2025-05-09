@@ -1,31 +1,35 @@
 
 import { useState } from 'react';
-import { Filter, ChevronDown, ChevronUp, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Filter, X } from 'lucide-react';
 import { 
   Dialog, 
   DialogContent, 
   DialogHeader, 
   DialogTitle, 
   DialogTrigger,
-  DialogDescription,
+  DialogFooter
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { 
-  Select, 
-  SelectContent, 
-  SelectGroup, 
-  SelectItem, 
-  SelectLabel, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/components/ui/select";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 export type FilterOptions = {
-  difficulty?: 'easy' | 'medium' | 'hard';
-  dietary?: string;
-  cuisine?: string;
-  mealType?: string;
+  cookingTime?: number | null;
+  difficulty?: 'easy' | 'medium' | 'hard' | null;
+  dietaryPreferences?: string[];
+  allergies?: string[];
+  cuisines?: string[];
+  calories?: [number, number] | null;
+  mealType?: string | null;
 };
 
 type FilterSystemProps = {
@@ -34,262 +38,381 @@ type FilterSystemProps = {
   useButtonStyles?: boolean;
 };
 
-const FilterSystem = ({ onFilterChange, currentFilters, useButtonStyles = false }: FilterSystemProps) => {
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
+const FilterSystem = ({ onFilterChange, currentFilters = {}, useButtonStyles = false }: FilterSystemProps) => {
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  
+  // Local state to track filter changes before applying
   const [tempFilters, setTempFilters] = useState<FilterOptions>(currentFilters);
   
-  const difficulties = [
-    { value: 'easy', label: 'Easy', dotClass: 'bg-chef-secondary' },
-    { value: 'medium', label: 'Medium', dotClass: 'bg-yellow-500' },
-    { value: 'hard', label: 'Hard', dotClass: 'bg-red-500' }
-  ];
-  
+  // Dietary preferences options
   const dietaryOptions = [
-    'Normal', 'Healthy', 'Vegetarian', 'Vegan', 'Gluten-Free', 
-    'Dairy-Free', 'Keto', 'Low-Carb'
+    { id: 'vegan', label: 'Vegan' },
+    { id: 'vegetarian', label: 'Vegetarian' },
+    { id: 'gluten-free', label: 'Gluten Free' },
+    { id: 'dairy-free', label: 'Dairy Free' },
+    { id: 'keto', label: 'Keto' },
+    { id: 'paleo', label: 'Paleo' },
+    { id: 'low-carb', label: 'Low Carb' },
+    { id: 'low-fat', label: 'Low Fat' },
+    { id: 'high-protein', label: 'High Protein' },
   ];
   
-  const cuisines = [
-    'Italian', 'Mexican', 'Chinese', 'Indian', 'Japanese', 
-    'Thai', 'Turkish', 'Syrian', 'Iraqi', 'Yemeni', 
-    'American', 'Moroccan', 'Lebanese', 'German'
+  // Allergy options
+  const allergyOptions = [
+    { id: 'nuts', label: 'Nuts' },
+    { id: 'dairy', label: 'Dairy' },
+    { id: 'eggs', label: 'Eggs' },
+    { id: 'soy', label: 'Soy' },
+    { id: 'seafood', label: 'Seafood' },
+    { id: 'wheat', label: 'Wheat' },
   ];
   
-  const mealTypes = [
-    'Any Meal', 'Breakfast', 'Lunch', 'Dinner', 'Dessert', 'Snack'
+  // Cuisine options
+  const cuisineOptions = [
+    { id: 'italian', label: 'Italian' },
+    { id: 'mexican', label: 'Mexican' },
+    { id: 'chinese', label: 'Chinese' },
+    { id: 'japanese', label: 'Japanese' },
+    { id: 'indian', label: 'Indian' },
+    { id: 'french', label: 'French' },
+    { id: 'thai', label: 'Thai' },
+    { id: 'mediterranean', label: 'Mediterranean' },
+    { id: 'lebanese', label: 'Lebanese' },
   ];
-
+  
+  // Meal type options
+  const mealTypeOptions = [
+    { id: 'any', label: 'Any Meal' },
+    { id: 'breakfast', label: 'Breakfast' },
+    { id: 'lunch', label: 'Lunch' },
+    { id: 'dinner', label: 'Dinner' },
+    { id: 'snack', label: 'Snack' },
+    { id: 'dessert', label: 'Dessert' },
+  ];
+  
+  const handleOpenFilterModal = () => {
+    setTempFilters({ ...currentFilters });
+    setIsFilterModalOpen(true);
+  };
+  
+  const handleCloseFilterModal = () => {
+    setIsFilterModalOpen(false);
+  };
+  
   const handleApplyFilters = () => {
     onFilterChange(tempFilters);
-    setIsFilterOpen(false);
+    handleCloseFilterModal();
   };
-
-  const handleClearFilters = () => {
+  
+  const handleResetFilters = () => {
     setTempFilters({});
   };
-
-  const handleRemoveFilter = (key: keyof FilterOptions) => {
-    const newFilters = { ...currentFilters };
-    delete newFilters[key];
-    onFilterChange(newFilters);
+  
+  const toggleDietaryPreference = (value: string) => {
+    const current = tempFilters.dietaryPreferences || [];
+    
+    if (current.includes(value)) {
+      setTempFilters({
+        ...tempFilters,
+        dietaryPreferences: current.filter(item => item !== value)
+      });
+    } else {
+      setTempFilters({
+        ...tempFilters,
+        dietaryPreferences: [...current, value]
+      });
+    }
   };
-
+  
+  const toggleAllergy = (value: string) => {
+    const current = tempFilters.allergies || [];
+    
+    if (current.includes(value)) {
+      setTempFilters({
+        ...tempFilters,
+        allergies: current.filter(item => item !== value)
+      });
+    } else {
+      setTempFilters({
+        ...tempFilters,
+        allergies: [...current, value]
+      });
+    }
+  };
+  
+  const toggleCuisine = (value: string) => {
+    const current = tempFilters.cuisines || [];
+    
+    if (current.includes(value)) {
+      setTempFilters({
+        ...tempFilters,
+        cuisines: current.filter(item => item !== value)
+      });
+    } else {
+      setTempFilters({
+        ...tempFilters,
+        cuisines: [...current, value]
+      });
+    }
+  };
+  
+  const handleCookingTimeChange = (value: number) => {
+    setTempFilters({
+      ...tempFilters,
+      cookingTime: value
+    });
+  };
+  
+  const handleDifficultyChange = (value: 'easy' | 'medium' | 'hard') => {
+    setTempFilters({
+      ...tempFilters,
+      difficulty: value
+    });
+  };
+  
+  const handleMealTypeChange = (value: string) => {
+    setTempFilters({
+      ...tempFilters,
+      mealType: value
+    });
+  };
+  
   const getActiveFilterCount = () => {
-    return Object.keys(currentFilters).length;
+    let count = 0;
+    
+    if (currentFilters.cookingTime) count++;
+    if (currentFilters.difficulty) count++;
+    if (currentFilters.mealType) count++;
+    if (currentFilters.dietaryPreferences?.length) count += 1;
+    if (currentFilters.allergies?.length) count += 1;
+    if (currentFilters.cuisines?.length) count += 1;
+    if (currentFilters.calories) count++;
+    
+    return count;
   };
-
-  const handleDietarySelect = (value: string) => {
-    setTempFilters({ ...tempFilters, dietary: value });
-  };
-
-  const handleCuisineSelect = (value: string) => {
-    setTempFilters({ ...tempFilters, cuisine: value });
-  };
-
-  const handleMealTypeSelect = (value: string) => {
-    setTempFilters({ ...tempFilters, mealType: value });
+  
+  const renderFilterSummary = () => {
+    const activeFilters = [];
+    
+    if (currentFilters.cookingTime) {
+      activeFilters.push(`Time: <=${currentFilters.cookingTime} min`);
+    }
+    
+    if (currentFilters.difficulty) {
+      activeFilters.push(`Difficulty: ${currentFilters.difficulty}`);
+    }
+    
+    if (currentFilters.mealType) {
+      activeFilters.push(`Meal: ${currentFilters.mealType}`);
+    }
+    
+    if (currentFilters.dietaryPreferences?.length) {
+      activeFilters.push(`Dietary: ${currentFilters.dietaryPreferences.length}`);
+    }
+    
+    if (currentFilters.allergies?.length) {
+      activeFilters.push(`Allergies: ${currentFilters.allergies.length}`);
+    }
+    
+    if (currentFilters.cuisines?.length) {
+      activeFilters.push(`Cuisines: ${currentFilters.cuisines.length}`);
+    }
+    
+    return activeFilters;
   };
 
   return (
-    <div className="px-4 py-3">
+    <div className="px-4 py-3 bg-white">
       <div className="flex justify-between items-center mb-3">
         <h3 className="text-lg font-semibold">Filters</h3>
         
-        <Dialog open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+        <Dialog open={isFilterModalOpen} onOpenChange={setIsFilterModalOpen}>
           <DialogTrigger asChild>
-            <Button 
-              variant="outline" 
-              className="flex items-center gap-2"
-              size="sm"
-            >
-              <Filter size={16} />
-              <span>Filter</span>
-              {getActiveFilterCount() > 0 && (
-                <Badge className="ml-1 bg-chef-primary h-5 w-5 p-0 flex items-center justify-center">
-                  {getActiveFilterCount()}
-                </Badge>
-              )}
-            </Button>
+            {useButtonStyles ? (
+              <div className="flex flex-wrap gap-2">
+                {getActiveFilterCount() === 0 ? (
+                  <Button variant="outline" className="flex items-center gap-2" onClick={handleOpenFilterModal}>
+                    <Filter size={16} />
+                    <span>Add Filters</span>
+                  </Button>
+                ) : (
+                  <>
+                    {renderFilterSummary().map((filter, index) => (
+                      <Badge key={index} variant="secondary" className="px-3 py-1">
+                        {filter}
+                      </Badge>
+                    ))}
+                    <Button variant="outline" size="sm" className="rounded-full p-2" onClick={handleOpenFilterModal}>
+                      <Filter size={16} />
+                    </Button>
+                  </>
+                )}
+              </div>
+            ) : (
+              <Button variant={getActiveFilterCount() > 0 ? "default" : "outline"} className="flex items-center gap-2" onClick={handleOpenFilterModal}>
+                <Filter size={16} />
+                <span>
+                  {getActiveFilterCount() > 0 ? `${getActiveFilterCount()} Filters` : 'Add Filters'}
+                </span>
+              </Button>
+            )}
           </DialogTrigger>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>Filter Options</DialogTitle>
-              <DialogDescription>
-                Select your preferred filters to narrow down recipe results
-              </DialogDescription>
+              <DialogTitle>Filter Recipes</DialogTitle>
             </DialogHeader>
-            <div className="space-y-4 py-4">
-              {/* Difficulty Filter */}
-              <div className="space-y-2">
-                <h4 className="text-sm font-medium">Difficulty</h4>
-                <div className="grid grid-cols-3 gap-2">
-                  {difficulties.map((difficulty) => (
-                    <Button 
-                      key={difficulty.value}
-                      variant={tempFilters.difficulty === difficulty.value ? "default" : "outline"}
-                      size="sm"
-                      className="flex items-center justify-center gap-2"
-                      onClick={() => setTempFilters({ 
-                        ...tempFilters, 
-                        difficulty: tempFilters.difficulty === difficulty.value 
-                          ? undefined 
-                          : difficulty.value as 'easy' | 'medium' | 'hard'
-                      })}
-                    >
-                      <span className={`inline-block w-2 h-2 rounded-full ${difficulty.dotClass}`}></span>
-                      {difficulty.label}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Dietary Filter */}
-              <div className="space-y-2">
-                <h4 className="text-sm font-medium">Dietary Preferences</h4>
-                {useButtonStyles ? (
-                  <div className="flex flex-wrap gap-2">
-                    {dietaryOptions.map((option) => (
-                      <Button 
-                        key={option} 
-                        variant={tempFilters.dietary === option.toLowerCase() ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => handleDietarySelect(
-                          tempFilters.dietary === option.toLowerCase() ? "" : option.toLowerCase()
-                        )}
-                      >
-                        {option}
-                      </Button>
-                    ))}
-                  </div>
-                ) : (
-                  <Select 
-                    value={tempFilters.dietary} 
-                    onValueChange={(value) => setTempFilters({ ...tempFilters, dietary: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select dietary preference" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectLabel>Dietary Options</SelectLabel>
-                        {dietaryOptions.map((option) => (
-                          <SelectItem key={option} value={option.toLowerCase()}>
-                            {option}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                )}
-              </div>
-
-              {/* Cuisine Filter */}
-              <div className="space-y-2">
-                <h4 className="text-sm font-medium">Cuisine</h4>
-                {useButtonStyles ? (
-                  <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto">
-                    {cuisines.map((cuisine) => (
-                      <Button 
-                        key={cuisine} 
-                        variant={tempFilters.cuisine === cuisine.toLowerCase() ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => handleCuisineSelect(
-                          tempFilters.cuisine === cuisine.toLowerCase() ? "" : cuisine.toLowerCase()
-                        )}
-                      >
-                        {cuisine}
-                      </Button>
-                    ))}
-                  </div>
-                ) : (
-                  <Select 
-                    value={tempFilters.cuisine} 
-                    onValueChange={(value) => setTempFilters({ ...tempFilters, cuisine: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select cuisine" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectLabel>Cuisine Types</SelectLabel>
-                        {cuisines.map((cuisine) => (
-                          <SelectItem key={cuisine} value={cuisine.toLowerCase()}>
-                            {cuisine}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                )}
-              </div>
-
-              {/* Meal Type Filter */}
-              <div className="space-y-2">
-                <h4 className="text-sm font-medium">Meal Type</h4>
-                {useButtonStyles ? (
-                  <div className="flex flex-wrap gap-2">
-                    {mealTypes.map((type) => (
-                      <Button 
-                        key={type} 
-                        variant={tempFilters.mealType === type.toLowerCase() ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => handleMealTypeSelect(
-                          tempFilters.mealType === type.toLowerCase() ? "" : type.toLowerCase()
-                        )}
-                      >
-                        {type}
-                      </Button>
-                    ))}
-                  </div>
-                ) : (
-                  <Select 
-                    value={tempFilters.mealType} 
-                    onValueChange={(value) => setTempFilters({ ...tempFilters, mealType: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select meal type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectLabel>Meal Types</SelectLabel>
-                        {mealTypes.map((type) => (
-                          <SelectItem key={type} value={type.toLowerCase()}>
-                            {type}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                )}
-              </div>
-
-              <div className="flex justify-between pt-4">
-                <Button variant="outline" onClick={handleClearFilters}>Clear All</Button>
-                <Button onClick={handleApplyFilters} className="bg-chef-primary hover:bg-chef-primary/90">Apply Filters</Button>
-              </div>
+            
+            <div className="py-4">
+              <Accordion type="single" collapsible className="w-full">
+                {/* Cooking Time Filter */}
+                <AccordionItem value="cooking-time">
+                  <AccordionTrigger className="text-left font-medium">
+                    Cooking Time
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className="space-y-4">
+                      <div>
+                        <Label className="block mb-2">Maximum cooking time: {tempFilters.cookingTime || 60} minutes</Label>
+                        <Slider
+                          value={[tempFilters.cookingTime || 60]}
+                          min={10}
+                          max={120}
+                          step={5}
+                          onValueChange={(vals) => handleCookingTimeChange(vals[0])}
+                          className="my-4"
+                        />
+                      </div>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+                
+                {/* Difficulty Filter */}
+                <AccordionItem value="difficulty">
+                  <AccordionTrigger className="text-left font-medium">
+                    Difficulty Level
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <RadioGroup value={tempFilters.difficulty || ''} onValueChange={(val: any) => handleDifficultyChange(val)}>
+                      <div className="flex items-center space-x-2 mb-2">
+                        <RadioGroupItem value="easy" id="easy" />
+                        <Label htmlFor="easy">Easy</Label>
+                      </div>
+                      <div className="flex items-center space-x-2 mb-2">
+                        <RadioGroupItem value="medium" id="medium" />
+                        <Label htmlFor="medium">Medium</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="hard" id="hard" />
+                        <Label htmlFor="hard">Hard</Label>
+                      </div>
+                    </RadioGroup>
+                  </AccordionContent>
+                </AccordionItem>
+                
+                {/* Meal Type Filter */}
+                <AccordionItem value="meal-type">
+                  <AccordionTrigger className="text-left font-medium">
+                    Meal Type
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <RadioGroup value={tempFilters.mealType || ''} onValueChange={handleMealTypeChange}>
+                      {mealTypeOptions.map((option) => (
+                        <div key={option.id} className="flex items-center space-x-2 mb-2">
+                          <RadioGroupItem value={option.id} id={`meal-${option.id}`} />
+                          <Label htmlFor={`meal-${option.id}`}>{option.label}</Label>
+                        </div>
+                      ))}
+                    </RadioGroup>
+                  </AccordionContent>
+                </AccordionItem>
+                
+                {/* Dietary Preferences Filter */}
+                <AccordionItem value="dietary-preferences">
+                  <AccordionTrigger className="text-left font-medium">
+                    Dietary Preferences
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className="space-y-2">
+                      {dietaryOptions.map((option) => (
+                        <div key={option.id} className="flex items-center space-x-2">
+                          <Checkbox 
+                            id={`dietary-${option.id}`} 
+                            checked={(tempFilters.dietaryPreferences || []).includes(option.id)}
+                            onCheckedChange={() => toggleDietaryPreference(option.id)}
+                          />
+                          <Label htmlFor={`dietary-${option.id}`}>{option.label}</Label>
+                        </div>
+                      ))}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+                
+                {/* Allergies Filter */}
+                <AccordionItem value="allergies">
+                  <AccordionTrigger className="text-left font-medium">
+                    Allergies
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className="space-y-2">
+                      {allergyOptions.map((option) => (
+                        <div key={option.id} className="flex items-center space-x-2">
+                          <Checkbox 
+                            id={`allergy-${option.id}`} 
+                            checked={(tempFilters.allergies || []).includes(option.id)}
+                            onCheckedChange={() => toggleAllergy(option.id)}
+                          />
+                          <Label htmlFor={`allergy-${option.id}`}>{option.label}</Label>
+                        </div>
+                      ))}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+                
+                {/* Cuisines Filter */}
+                <AccordionItem value="cuisines">
+                  <AccordionTrigger className="text-left font-medium">
+                    Cuisines
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className="grid grid-cols-2 gap-2">
+                      {cuisineOptions.map((option) => (
+                        <div key={option.id} className="flex items-center space-x-2">
+                          <Checkbox 
+                            id={`cuisine-${option.id}`} 
+                            checked={(tempFilters.cuisines || []).includes(option.id)}
+                            onCheckedChange={() => toggleCuisine(option.id)}
+                          />
+                          <Label htmlFor={`cuisine-${option.id}`}>{option.label}</Label>
+                        </div>
+                      ))}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
             </div>
+            
+            <DialogFooter className="flex flex-col sm:flex-row gap-2">
+              <Button variant="outline" onClick={handleResetFilters} className="w-full sm:w-auto">
+                Reset
+              </Button>
+              <Button variant="outline" onClick={handleCloseFilterModal} className="w-full sm:w-auto">
+                Cancel
+              </Button>
+              <Button onClick={handleApplyFilters} className="w-full sm:w-auto bg-chef-primary hover:bg-chef-primary/90">
+                Apply Filters
+              </Button>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>
-
-      {/* Active Filters */}
-      {getActiveFilterCount() > 0 && (
-        <div className="flex flex-wrap gap-2 mb-2">
-          {Object.entries(currentFilters).map(([key, value]) => (
-            value && (
-              <Badge 
-                key={key}
-                variant="secondary" 
-                className="flex items-center gap-1 px-3 py-1"
-              >
-                <span className="capitalize">{key}: {value}</span>
-                <X 
-                  size={14} 
-                  className="cursor-pointer" 
-                  onClick={() => handleRemoveFilter(key as keyof FilterOptions)} 
-                />
-              </Badge>
-            )
+      
+      {/* Display active filters */}
+      {getActiveFilterCount() > 0 && !useButtonStyles && (
+        <div className="flex flex-wrap gap-2 mt-2">
+          {renderFilterSummary().map((filter, index) => (
+            <Badge key={index} variant="secondary" className="px-3 py-1">
+              {filter}
+            </Badge>
           ))}
         </div>
       )}

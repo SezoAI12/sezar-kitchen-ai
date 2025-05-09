@@ -1,13 +1,7 @@
 
 /// <reference types="vite/client" />
 
+// Extend Window interface to include translations property
 interface Window {
-  translations: {
-    [key: string]: {
-      pageTitle: string;
-      selectPrompt: string;
-      continueButton: string;
-      languageSelected: string;
-    };
-  };
+  translations?: Record<string, Record<string, string>>;
 }
