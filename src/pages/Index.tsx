@@ -5,16 +5,14 @@ import CategorySelection, { Category } from '../components/CategorySelection';
 import SubcategorySelection from '../components/SubcategorySelection';
 import IngredientSelector from '../components/IngredientSelector';
 import FilterSystem, { FilterOptions } from '../components/FilterSystem';
-import QuickAccessBar from '../components/QuickAccessBar';
 import FindRecipesButton from '../components/FindRecipesButton';
 import { Button } from '@/components/ui/button';
 import {
-  FileText,
   BookmarkPlus,
   Clock,
   Globe,
-  ChevronDown,
-  Check
+  ShoppingBag,
+  Utensils
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
@@ -23,7 +21,6 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -116,6 +113,8 @@ const Index = () => {
     { value: 'japanese', label: 'Japanese' },
     { value: 'european', label: 'European' },
     { value: 'american', label: 'American' },
+    { value: 'levant', label: 'Levant' },
+    { value: 'maghreb', label: 'Maghreb' }
   ];
 
   // Meal types list for dropdown
@@ -124,7 +123,7 @@ const Index = () => {
     { value: 'breakfast', label: 'Breakfast' },
     { value: 'lunch', label: 'Lunch' },
     { value: 'dinner', label: 'Dinner' },
-    { value: 'snack', label: 'Snack' },
+    { value: 'snack', label: 'Snack' }
   ];
 
   // Diet preferences list for dropdown
@@ -136,7 +135,7 @@ const Index = () => {
     { value: 'gluten-free', label: 'Gluten Free' },
     { value: 'dairy-free', label: 'Dairy Free' },
     { value: 'keto', label: 'Keto' },
-    { value: 'low-carb', label: 'Low Carb' },
+    { value: 'low-carb', label: 'Low Carb' }
   ];
 
   return (
@@ -155,30 +154,30 @@ const Index = () => {
         </div>
         
         {/* Quick Access Buttons */}
-        <div className="px-4 py-3 flex space-x-2">
+        <div className="px-4 py-3 grid grid-cols-3 gap-2">
           <Button 
             variant="outline" 
-            className="flex-1 flex items-center justify-center gap-1"
+            className="flex-1 flex flex-col items-center justify-center gap-1 py-3"
             onClick={() => handleNavigateTo('/favorites')}
           >
-            <BookmarkPlus size={16} />
-            <span>Saved</span>
+            <BookmarkPlus size={20} />
+            <span className="text-xs">Saved Recipes</span>
           </Button>
           <Button 
             variant="outline" 
-            className="flex-1 flex items-center justify-center gap-1"
-            onClick={() => handleNavigateTo('/history')}
+            className="flex-1 flex flex-col items-center justify-center gap-1 py-3"
+            onClick={() => handleNavigateTo('/pantry')}
           >
-            <Clock size={16} />
-            <span>History</span>
+            <ShoppingBag size={20} />
+            <span className="text-xs">Smart Pantry</span>
           </Button>
           <Button 
             variant="outline" 
-            className="flex-1 flex items-center justify-center gap-1"
+            className="flex-1 flex flex-col items-center justify-center gap-1 py-3"
             onClick={() => handleNavigateTo('/global')}
           >
-            <Globe size={16} />
-            <span>Global</span>
+            <Globe size={20} />
+            <span className="text-xs">Global Recipes</span>
           </Button>
         </div>
         
@@ -199,15 +198,15 @@ const Index = () => {
 
         {/* Additional Category Dropdowns */}
         <div className="px-4 py-4 bg-white mt-2">
-          <h3 className="text-lg font-semibold mb-3">Additional Filters</h3>
+          <h3 className="text-lg font-semibold mb-3">Criteria Selection</h3>
           
           <div className="space-y-3">
             {/* Country Selection */}
             <div>
-              <label htmlFor="country" className="text-sm font-medium mb-1 block">Country</label>
+              <label htmlFor="country" className="text-sm font-medium mb-1 block">Cuisine/Country</label>
               <Select value={selectedCountry} onValueChange={setSelectedCountry}>
                 <SelectTrigger id="country" className="w-full">
-                  <SelectValue placeholder="Select country" />
+                  <SelectValue placeholder="Select cuisine or country" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
@@ -267,18 +266,13 @@ const Index = () => {
           onIngredientsChange={handleIngredientsChange}
         />
         
-        {/* Filter System */}
-        <FilterSystem 
-          onFilterChange={handleFilterChange}
-          currentFilters={filterOptions}
-        />
-        
         {/* Action Buttons Section */}
         <div className="px-4 py-3 space-y-4">
           {/* Find Recipes Button using the custom component */}
           <FindRecipesButton 
             onClick={handleFindRecipes} 
             isLoading={isLoading}
+            text="Find Recipe Using Artificial Intelligence"
           />
           
           {/* Share Recipe Button */}
@@ -286,7 +280,7 @@ const Index = () => {
             onClick={handleCreateRecipe}
             className="w-full flex items-center justify-center gap-2 bg-chef-secondary hover:bg-chef-secondary/90 py-4 shadow-md"
           >
-            <FileText size={18} />
+            <Utensils size={18} />
             <span>Share Your Culinary Creation</span>
           </Button>
         </div>
