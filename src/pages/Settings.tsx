@@ -2,9 +2,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
-import { ChevronLeft, User, Bell, Globe, Moon, Sun, Info, Shield, LogOut, File, UserX } from 'lucide-react';
+import { ChevronLeft, User, Info, Shield, File, UserX, CreditCard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
 import {
   Accordion,
   AccordionContent,
@@ -41,9 +40,6 @@ const Settings = () => {
   // Health goals state
   const [healthGoals, setHealthGoals] = useState<string[]>([]);
   
-  // Notifications state
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  
   const handleBack = () => {
     navigate(-1);
   };
@@ -71,14 +67,6 @@ const Settings = () => {
     });
   };
   
-  const handleLogout = () => {
-    toast({
-      title: "Logged out",
-      description: "You have been successfully logged out."
-    });
-    navigate('/login');
-  };
-
   return (
     <Layout>
       <div className="max-w-md mx-auto bg-chef-light-gray min-h-screen pb-24 dark:bg-gray-900 dark:text-white">
@@ -106,40 +94,12 @@ const Settings = () => {
                 <ChevronLeft size={20} className="rotate-180 text-chef-medium-gray" />
               </div>
               
-              <div className="flex items-center justify-between p-2">
+              <div className="flex items-center justify-between p-2 cursor-pointer" onClick={() => navigate('/payment-methods')}>
                 <div className="flex items-center">
-                  <Bell size={20} className="mr-3 text-chef-primary" />
-                  <span>Notifications</span>
+                  <CreditCard size={20} className="mr-3 text-chef-primary" />
+                  <span>Payment Methods</span>
                 </div>
-                <Switch 
-                  checked={notificationsEnabled}
-                  onCheckedChange={setNotificationsEnabled}
-                />
-              </div>
-              
-              <div className="flex items-center justify-between p-2" onClick={() => navigate('/language')}>
-                <div className="flex items-center">
-                  <Globe size={20} className="mr-3 text-chef-primary" />
-                  <span>Language</span>
-                </div>
-                <div className="flex items-center text-chef-medium-gray dark:text-gray-400">
-                  <span className="mr-2">English</span>
-                  <ChevronLeft size={20} className="rotate-180" />
-                </div>
-              </div>
-              
-              <div className="flex items-center justify-between p-2">
-                <div className="flex items-center">
-                  {darkMode ? 
-                    <Sun size={20} className="mr-3 text-chef-primary" /> : 
-                    <Moon size={20} className="mr-3 text-chef-primary" />
-                  }
-                  <span>{darkMode ? 'Light Mode' : 'Dark Mode'}</span>
-                </div>
-                <Switch 
-                  checked={darkMode}
-                  onCheckedChange={toggleDarkMode}
-                />
+                <ChevronLeft size={20} className="rotate-180 text-chef-medium-gray" />
               </div>
             </div>
           </div>
@@ -336,15 +296,6 @@ const Settings = () => {
           {/* Account Actions */}
           <div className="bg-white rounded-lg shadow-sm p-4 mb-4 dark:bg-gray-800">
             <div className="space-y-4">
-              <Button 
-                variant="outline"
-                className="w-full flex items-center justify-center gap-2 border-red-500 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
-                onClick={handleLogout}
-              >
-                <LogOut size={18} />
-                <span>Logout</span>
-              </Button>
-              
               <Button 
                 variant="outline"
                 className="w-full flex items-center justify-center gap-2 border-red-500 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"

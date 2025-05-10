@@ -12,12 +12,15 @@ import {
   ShoppingBasket,
   FileText,
   Edit,
+  CreditCard,
+  Clipboard
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { useNavigate } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/components/ui/use-toast';
+import { Badge } from '@/components/ui/badge';
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -97,16 +100,9 @@ const Profile = () => {
         <div className="mt-4 mx-4 p-4 bg-gradient-to-r from-chef-primary to-chef-primary/80 text-white rounded-lg shadow">
           <div className="flex justify-between items-center">
             <h3 className="font-semibold">{isPremium ? 'Premium Plan' : 'Free Plan'}</h3>
-            {!isPremium && (
-              <Button 
-                variant="secondary" 
-                size="sm" 
-                className="text-chef-primary"
-                onClick={activatePremium}
-              >
-                Activate Premium
-              </Button>
-            )}
+            <Badge variant="secondary" className="bg-white text-chef-primary">
+              {isPremium ? 'Active' : 'Upgrade'}
+            </Badge>
           </div>
           
           <p className="text-sm mt-2 opacity-90">
@@ -114,6 +110,45 @@ const Profile = () => {
               ? "You have access to all premium features! Enjoy the full experience." 
               : "Unlock premium features like detailed nutrition analysis, meal planning, and more!"}
           </p>
+          
+          <div className="mt-4 flex flex-wrap gap-2">
+            {isPremium ? (
+              <>
+                <Button 
+                  variant="secondary" 
+                  size="sm" 
+                  className="text-chef-primary"
+                  onClick={() => navigate('/subscription')}
+                >
+                  Change Plan
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="border-white text-white hover:bg-white/10"
+                  onClick={() => {
+                    localStorage.removeItem('premiumStatus');
+                    setIsPremium(false);
+                    toast({
+                      title: "Plan Cancelled",
+                      description: "Your premium subscription has been cancelled. You'll have access until the end of the billing period."
+                    });
+                  }}
+                >
+                  Cancel
+                </Button>
+              </>
+            ) : (
+              <Button 
+                variant="secondary" 
+                size="sm" 
+                className="text-chef-primary"
+                onClick={() => navigate('/subscription')}
+              >
+                View Plans
+              </Button>
+            )}
+          </div>
         </div>
         
         {/* Premium Features */}
@@ -169,6 +204,18 @@ const Profile = () => {
               <h4 className="font-medium">History</h4>
               <p className="text-sm text-chef-medium-gray">8 recipes</p>
             </Button>
+            
+            <Button
+              variant="outline"
+              className="p-4 rounded-lg flex flex-col items-center h-auto col-span-2"
+              onClick={() => navigate('/my-recipes')}
+            >
+              <div className="bg-white p-3 rounded-full mb-2 text-chef-primary">
+                <Clipboard size={24} />
+              </div>
+              <h4 className="font-medium">My Recipe Log</h4>
+              <p className="text-sm text-chef-medium-gray">3 shared recipes</p>
+            </Button>
           </div>
         </div>
         
@@ -184,9 +231,9 @@ const Profile = () => {
           </Button>
         </div>
         
-        {/* Account Settings */}
+        {/* Account Management */}
         <div className="mt-4 px-4 py-3 bg-white">
-          <h3 className="text-lg font-semibold mb-3">Account Settings</h3>
+          <h3 className="text-lg font-semibold mb-3">Account Management</h3>
           
           <div className="divide-y">
             <div className="py-3 flex items-center justify-between" onClick={() => navigate('/settings')}>
@@ -196,21 +243,11 @@ const Profile = () => {
               <ChevronRight size={20} className="text-chef-medium-gray" />
             </div>
             
-            <div className="py-3 flex items-center justify-between">
+            <div className="py-3 flex items-center justify-between" onClick={() => navigate('/payment-methods')}>
               <div className="flex items-center">
-                <span>Notifications</span>
+                <span>Payment Methods</span>
               </div>
-              <Switch />
-            </div>
-            
-            <div className="py-3 flex items-center justify-between" onClick={() => navigate('/language')}>
-              <div className="flex items-center">
-                <span>Language</span>
-              </div>
-              <div className="flex items-center">
-                <span className="text-chef-medium-gray mr-2">English</span>
-                <ChevronRight size={20} className="text-chef-medium-gray" />
-              </div>
+              <ChevronRight size={20} className="text-chef-medium-gray" />
             </div>
             
             {/* Logout Button */}

@@ -23,6 +23,8 @@ import Settings from "./pages/Settings";
 import AdminPanel from "./pages/AdminPanel";
 import Favorites from "./pages/Favorites";
 import History from "./pages/History";
+import MyRecipes from "./pages/MyRecipes";
+import PaymentMethods from "./pages/PaymentMethods";
 import { useUsageTracker } from "./services/UsageTracker";
 
 // Create a context for the usage tracker
@@ -61,6 +63,7 @@ const App = () => {
               <Route path="/pantry" element={<Pantry />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/settings" element={<Settings />} />
+              <Route path="/payment-methods" element={<PaymentMethods />} />
               
               {/* Recipe Routes */}
               <Route path="/recipe/:id" element={<Recipe />} />
@@ -69,13 +72,14 @@ const App = () => {
               {/* Premium Features */}
               <Route path="/meal-planning" element={<MealPlanning />} />
               <Route path="/shopping-list" element={<ShoppingList />} />
+              <Route path="/subscription" element={<Subscription />} />
               
               {/* Personal Collection Routes */}
               <Route path="/favorites" element={<Favorites />} />
               <Route path="/history" element={<History />} />
+              <Route path="/my-recipes" element={<MyRecipes />} />
               
               {/* Subscription and Payment */}
-              <Route path="/subscription" element={<Subscription />} />
               <Route path="/payment" element={<Payment />} />
               
               {/* Admin Panel */}
